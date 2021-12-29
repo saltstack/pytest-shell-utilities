@@ -1,0 +1,6 @@
+pytest>=6.0.0
+attrs>=19.2.0
+psutil>=5.0.0
+typing-extensions
+pytest-helpers-namespace
+pytest-skip-markers

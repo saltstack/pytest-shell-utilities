@@ -1,0 +1,57 @@
+[run]
+branch = True
+cover_pylib = False
+parallel = True
+concurrency = multiprocessing
+relative_files = True
+
+omit =
+  .nox/*
+  setup.py
+  noxfile.py
+
+plugins = ${COVERAGE_PLUGINS_LIST}
+
+[coverage_conditional_plugin]
+# Here we specify our pragma rules:
+rules =
+  "sys_platform == 'win32'": is-windows
+  "sys_platform == 'win32' and sys.version_info[:2] == (3, 7)": is-windows-py37
+  "'bsd' in sys_platform": is-bsd
+  "'bsd' in sys_platform and sys.version_info < (3, 9)": is-bsd-lt-py39
+
+
+[report]
+# Regexes for lines to exclude from consideration
+exclude_lines =
+    # Have to re-enable the standard pragma
+    pragma: no cover
+
+    # Don't complain about missing debug-only code:
+    def __repr__
+
+    # Don't complain if tests don't hit defensive assertion code:
+    raise AssertionError
+    raise NotImplemented
+    raise NotImplementedError
+
+    # Don't complain if non-runnable code isn't run:
+    if 0:
+    if False:
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+
+omit =
+  .nox/*
+  setup.py
+  noxfile.py
+
+
+ignore_errors = True
+
+[paths]
+source =
+  src/pytestshellutils/
+  **/site-packages/pytestshellutils/
+testsuite =
+  tests/

@@ -1,0 +1,10 @@
+-r base.txt
+-r tests.txt
+pylint==2.12.2
+pyenchant
+black; python_version >= '3.7'
+reorder-python-imports; python_version >= '3.7'
+flake8 >= 4.0.1
+flake8-mypy-fork
+flake8-docstrings
+flake8-typing-imports

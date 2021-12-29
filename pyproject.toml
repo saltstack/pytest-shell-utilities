@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=50.3.2", "wheel", "setuptools-declarative-requirements", "setuptools_scm[toml]>=3.4"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/pytestshellutils/version.py"
+write_to_template = "# pylint: skip-file\n\n__version__ = \"{version}\"\n"
+
+[tool.towncrier]
+package = "pytestshellutils"
+filename = "CHANGELOG.rst"
+directory = "changelog/"
+title_format = "shell-utilities {version} ({project_date})"
+template = "changelog/_template.rst"
+
+  [[tool.towncrier.type]]
+  directory = "breaking"
+  name = "Breaking Changes"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "deprecation"
+  name = "Deprecations"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "feature"
+  name = "Features"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "improvement"
+  name = "Improvements"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "bugfix"
+  name = "Bug Fixes"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "doc"
+  name = "Improved Documentation"
+  showcontent = true
+
+  [[tool.towncrier.type]]
+  directory = "trivial"
+  name = "Trivial/Internal Changes"
+  showcontent = true

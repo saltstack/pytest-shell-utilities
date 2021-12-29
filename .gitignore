@@ -122,8 +122,17 @@ venv.bak/
 
 # mypy
 .mypy_cache/
-.dmypy.json
-dmypy.json
+.dmypy.data
+dmypy.data
 
 # Pyre type checker
 .pyre/
+
+# Local vim directory
+.vim/
+
+# Ignore the setuptools_scm auto-generated version module
+src/pytestshellutils/version.py
+
+# Ignore CI generated artifacts
+artifacts/
