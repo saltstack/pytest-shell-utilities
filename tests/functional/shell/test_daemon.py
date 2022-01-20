@@ -112,6 +112,10 @@ def test_daemon_process_termination(request, tempfiles: Tempfiles):
         # Under Python 3.7 and Windows we always seem to get +1 child
         # XXX: Don't forget to look what this extra child is
         expected_count += 1
+    if platform.is_darwin() and sys.version_info >= (3, 8):  # pragma: is-darwin-ge-py38
+        # macOS defaults to spawning new processed after Python 3.8
+        # Account for the forking process
+        expected_count += 1
     assert child_count == expected_count, "{}!={}\n{}".format(
         child_count,
         expected_count,

@@ -19,6 +19,7 @@ rules =
   "sys_platform == 'win32' and sys.version_info[:2] == (3, 7)": is-windows-py37
   "'bsd' in sys_platform": is-bsd
   "'bsd' in sys_platform and sys.version_info < (3, 9)": is-bsd-lt-py39
+  "sys_platform == "darwin" and sys.version_info >= (3, 8)": is-darwin-ge-py38
 
 
 [report]
