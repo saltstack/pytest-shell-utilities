@@ -72,6 +72,71 @@ flags:
     paths:
       - tests/
     carryforward: false
+  Linux:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Windows:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  macOS:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Py35:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Py36:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Py37:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Py38:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Py39:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  Py310:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  PyTest60:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  PyTest61:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  PyTest62:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
+  PyTest70:
+    paths:
+      - src/
+      - tests/
+    carryforward: false
 
 comment:
   layout: "reach, diff, flags, files"
