@@ -7,6 +7,7 @@ repos:
       - id: check-merge-conflict  # Check for files that contain merge conflict strings.
       - id: trailing-whitespace
         args: [--markdown-linebreak-ext=md]
+        exclude: ^src/pytestshellutils/untyped/.*\.py$
       - id: mixed-line-ending     # Replaces or checks mixed line ending.
         args: [--fix=lf]
       - id: end-of-file-fixer
@@ -37,6 +38,21 @@ repos:
         language: system
   # <---- Local Hooks ------------------------------------------------------------------------------------------------
 
+  # ----- Remove Typing - Py3.5 Support  ---------------------------------------------------------------------------->
+  - repo: https://github.com/s0undt3ch/untype-source
+    rev: v1.0.0
+    hooks:
+      - id: untype-source
+        name: Remove Typing Information Into Separate Package
+        files: ^src/.*\.py$
+        exclude: ^src/pytestshellutils/((__init__|version)\.py|untyped/.*\.py)$
+        args:
+          - --target-version=3.5
+          - --pkg-path=src/pytestshellutils
+          - --skip-checker=nounusableimports
+          - --skip-checker=nostarimports
+  # <---- Remove Typing - Py3.5 Support  -----------------------------------------------------------------------------
+
   # ----- Formatting ------------------------------------------------------------------------------------------------>
   - repo: https://github.com/saltstack/pre-commit-remove-import-headers
     rev: 1.1.0
@@ -51,6 +67,7 @@ repos:
         alias: rewrite-docstrings
         name: Salt extensions docstrings auto-fixes
         files: ^src/pytestshellutils/.*\.py$
+        exclude: ^src/pytestshellutils/untyped/.*$
         args: [--silent]
 
   - repo: https://github.com/s0undt3ch/salt-rewrite
@@ -72,7 +89,7 @@ repos:
           --py3-plus
         ]
         files: ^((setup|noxfile)|(src|tests)/.*)\.py$
-        exclude: src/pytestshellutils/version.py
+        exclude: ^src/pytestshellutils/(version.py|untyped/.*)$
 
   - repo: https://github.com/asottile/reorder_python_imports
     rev: v2.6.0
@@ -81,14 +98,14 @@ repos:
         args:
           - --py3-plus
           - --application-directories=.:src
-        exclude: src/pytestshellutils/version.py
+        exclude: ^src/pytestshellutils/(version.py|untyped/.*)$
 
   - repo: https://github.com/psf/black
     rev: 21.12b0
     hooks:
       - id: black
         args: [-l 100]
-        exclude: src/pytestshellutils/version.py
+        exclude: ^src/pytestshellutils/(version.py|untyped/.*)$
 
   - repo: https://github.com/asottile/blacken-docs
     rev: v1.12.0
@@ -96,6 +113,7 @@ repos:
       - id: blacken-docs
         args: [--skip-errors]
         files: ^(docs/.*\.rst|src/pytestshellutils/.*\.py)$
+        exclude: ^src/pytestshellutils/untyped/.*$
         additional_dependencies: [black==21.10b0]
   # <---- Formatting -------------------------------------------------------------------------------------------------
 
@@ -124,7 +142,7 @@ repos:
     rev: '4.0.1'
     hooks:
       - id: flake8
-        exclude: ^(src/pytestshellutils/version\.py|\.pre-commit-hooks/.*\.py)$
+        exclude: ^(src/pytestshellutils/(untyped/.*|version\.py)|\.pre-commit-hooks/.*\.py)$
         additional_dependencies:
         - flake8-mypy-fork
         - flake8-docstrings
@@ -136,6 +154,7 @@ repos:
       - id: mypy
         name: Run mypy against source
         files: ^src/.*\.py$
+        exclude: ^src/pytestshellutils/(untyped/.*|utils/(socket|time)\.py)$
         args: [--strict]
         additional_dependencies:
           - attrs
@@ -149,6 +168,7 @@ repos:
       - id: mypy
         name: Run mypy against tests
         files: ^tests/.*\.py$
+        exclude: ^src/pytestshellutils/(untyped/.*|utils/(socket|time)\.py)$
         args: []
         additional_dependencies:
           - pytest

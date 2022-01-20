@@ -357,10 +357,10 @@ def test_stopped_context_manager(request, factory_stopped_script):
 
 @attr.s
 class DaemonCallbackCounter:
-    before_start_callback_counter: int = attr.ib(default=0)
-    after_start_callback_counter: int = attr.ib(default=0)
-    before_terminate_callback_counter: int = attr.ib(default=0)
-    after_terminate_callback_counter: int = attr.ib(default=0)
+    before_start_callback_counter = attr.ib(default=0)  # type: int
+    after_start_callback_counter = attr.ib(default=0)  # type: int
+    before_terminate_callback_counter = attr.ib(default=0)  # type: int
+    after_terminate_callback_counter = attr.ib(default=0)  # type: int
 
     def before_start_callback(self):
         self.before_start_callback_counter += 1
@@ -377,11 +377,11 @@ class DaemonCallbackCounter:
 
 @attr.s
 class DaemonContextCallbackCounter:
-    daemon: Daemon = attr.ib()
-    before_start_callback_counter: int = attr.ib(default=0)
-    after_start_callback_counter: int = attr.ib(default=0)
-    before_stop_callback_counter: int = attr.ib(default=0)
-    after_stop_callback_counter: int = attr.ib(default=0)
+    daemon = attr.ib()  # type: Daemon
+    before_start_callback_counter = attr.ib(default=0)  # type: int
+    after_start_callback_counter = attr.ib(default=0)  # type: int
+    before_stop_callback_counter = attr.ib(default=0)  # type: int
+    after_stop_callback_counter = attr.ib(default=0)  # type: int
 
     def before_start_callback(self, daemon):
         assert daemon is self.daemon

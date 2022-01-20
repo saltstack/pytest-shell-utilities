@@ -84,6 +84,7 @@ sunos
 sys
 toml
 towncrier
+untyped
 uss
 utils
 virtualenvs
