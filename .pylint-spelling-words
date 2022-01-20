@@ -3,6 +3,7 @@ abspath
 aix
 argparse
 args
+ascii
 attr
 attrs
 autodoc
@@ -43,6 +44,7 @@ localhost
 lru
 lsof
 macos
+mbcs
 mypy
 namespace
 netbsd
@@ -77,6 +79,7 @@ sitevars
 smartos
 stacklevel
 stderr
+stdin
 stdout
 str
 subprocess

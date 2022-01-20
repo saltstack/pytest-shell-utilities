@@ -7,6 +7,7 @@ from __future__ import generator_stop
 import atexit
 import contextlib
 import json
+import locale
 import logging
 import os
 import pathlib
@@ -277,7 +278,26 @@ class Factory:
         return self._get_default_timeout()
 
     def _get_default_system_encoding(self) ->str:
-        return 'utf-8'
+        encoding = None
+        if not platform.is_windows() and sys.stdin is not None:
+            encoding = sys.stdin.encoding
+        if not encoding:
+            try:
+                encoding = locale.getdefaultlocale()[-1]
+            except ValueError:
+                pass
+            if not encoding:
+                encoding = sys.getdefaultencoding()
+            if not encoding:
+                if platform.is_darwin():
+                    encoding = 'utf-8'
+                elif platform.is_windows():
+                    encoding = 'mbcs'
+                else:
+                    encoding = 'ascii'
+        if not encoding:
+            encoding = 'utf-8'
+        return encoding
 
     def _get_default_timeout(self) ->Optional[int]:
         return None

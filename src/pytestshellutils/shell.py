@@ -6,6 +6,7 @@ Shelling class implementations.
 import atexit
 import contextlib
 import json
+import locale
 import logging
 import os
 import pathlib
@@ -335,7 +336,48 @@ class Factory:
         return self._get_default_timeout()
 
     def _get_default_system_encoding(self) -> str:
-        return "utf-8"
+        encoding: Optional[str] = None
+
+        if not platform.is_windows() and sys.stdin is not None:
+            # On Linux we can rely on sys.stdin for the encoding since it
+            # most commonly matches the file-system encoding. This however
+            # does not apply to windows
+            encoding = sys.stdin.encoding
+
+        if not encoding:
+            # If the system is properly configured this should return a valid
+            # encoding. MS Windows has problems with this and reports the wrong
+            # encoding
+
+            try:
+                encoding = locale.getdefaultlocale()[-1]
+            except ValueError:
+                # A bad locale setting was most likely found:
+                #   https://github.com/saltstack/salt/issues/26063
+                pass
+
+            if not encoding:
+                # This is most likely ascii which is not the best but we were
+                # unable to find a better encoding. If this fails, we fall all
+                # the way back to ascii
+                encoding = sys.getdefaultencoding()
+            if not encoding:
+                if platform.is_darwin():
+                    # Mac OS X uses UTF-8
+                    encoding = "utf-8"
+                elif platform.is_windows():
+                    # Windows uses a configurable encoding; on Windows, Python uses the name “mbcs”
+                    # to refer to whatever the currently configured encoding is.
+                    encoding = "mbcs"
+                else:
+                    # On linux default to ascii as a last resort
+                    encoding = "ascii"
+
+        if not encoding:
+            # If we still didn't detect the encoding, default to utf-8
+            encoding = "utf-8"
+
+        return encoding
 
     def _get_default_timeout(self) -> Optional[int]:
         return None
