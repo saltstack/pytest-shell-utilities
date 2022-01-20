@@ -108,9 +108,8 @@ def test_daemon_process_termination(request, tempfiles: Tempfiles):
     request.addfinalizer(functools.partial(kill_children, children))
     child_count = len(children)
     expected_count = primary_childrend_count + (primary_childrend_count * secondary_children_count)
-    if platform.is_windows() and sys.version_info[:2] == (3, 7):  # pragma: is-windows-py37
-        # Under Python 3.7 and Windows we always seem to get +1 child
-        # XXX: Don't forget to look what this extra child is
+    if platform.is_windows() and sys.version_info >= (3, 7):  # pragma: is-windows-ge-py37
+        # After Python 3.7 there's an extra spawning process
         expected_count += 1
     if platform.is_darwin() and sys.version_info >= (3, 8):  # pragma: is-darwin-ge-py38
         # macOS defaults to spawning new processed after Python 3.8
