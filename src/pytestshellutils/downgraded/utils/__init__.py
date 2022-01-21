@@ -16,20 +16,23 @@ from typing import TYPE_CHECKING
 from typing import Union
 import packaging.version
 import pytestshellutils
+
 if TYPE_CHECKING:
     from packaging.version import Version
 
 
-def resolved_pathlib_path(path: pathlib.Path) ->pathlib.Path:
+def resolved_pathlib_path(path: pathlib.Path) -> pathlib.Path:
     """
     Return a resolved ``pathlib.Path``.
     """
     return path.resolve()
 
 
-def format_callback_to_string(callback: Union[str, Callable[..., Any]],
-    args: Optional[Tuple[Any, ...]]=None, kwargs: Optional[Dict[str, Any]]=None
-    ) ->str:
+def format_callback_to_string(
+    callback: Union[str, Callable[..., Any]],
+    args: Optional[Tuple[Any, ...]] = None,
+    kwargs: Optional[Dict[str, Any]] = None,
+) -> str:
     """
     Convert a callback, its arguments and keyword arguments to a string suitable for logging purposes.
 
@@ -54,15 +57,19 @@ def format_callback_to_string(callback: Union[str, Callable[..., Any]],
     if kwargs:
         if args:
             callback_str += ', '
-        callback_str += ', '.join(['{}={!r}'.format(k, v) for k, v in
-            kwargs.items()])
+        callback_str += ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])
     callback_str += ')'
     return callback_str
 
 
-def warn_until(version: str, message: str, category: Type[Warning]=
-    DeprecationWarning, stacklevel: Optional[int]=None, _dont_call_warnings:
-    bool=False, _pkg_version_: Optional[str]=None) ->None:
+def warn_until(
+    version: str,
+    message: str,
+    category: Type[Warning] = DeprecationWarning,
+    stacklevel: Optional[int] = None,
+    _dont_call_warnings: bool = False,
+    _pkg_version_: Optional[str] = None,
+) -> None:
     """
     Show a deprecation warning.
 
@@ -94,9 +101,12 @@ def warn_until(version: str, message: str, category: Type[Warning]=
     if _pkg_version >= _version:
         caller = inspect.getframeinfo(sys._getframe(stacklevel - 1))
         raise RuntimeError(
-            "The warning triggered on filename '{filename}', line number {lineno}, is supposed to be shown until version {until_version} is released. Current version is now {version}. Please remove the warning."
-            .format(filename=caller.filename, lineno=caller.lineno,
-            until_version=_pkg_version_, version=version))
+            "The warning triggered on filename '{filename}', line number {lineno}, is supposed to be shown until version {until_version} is released. Current version is now {version}. Please remove the warning.".format(
+                filename=caller.filename,
+                lineno=caller.lineno,
+                until_version=_pkg_version_,
+                version=version,
+            )
+        )
     if _dont_call_warnings is False:
-        warnings.warn(message.format(version=version), category, stacklevel
-            =stacklevel)
+        warnings.warn(message.format(version=version), category, stacklevel=stacklevel)

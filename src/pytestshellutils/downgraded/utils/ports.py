@@ -10,10 +10,11 @@ from typing import Iterable
 from typing import Set
 import pytest
 import pytestshellutils.utils.socket as socket
+
 log = logging.getLogger(__name__)
 
 
-def get_unused_localhost_port(use_cache: bool=False) ->int:
+def get_unused_localhost_port(use_cache: bool = False) -> int:
     """
     Return a random unused port on localhost.
 
@@ -22,10 +23,13 @@ def get_unused_localhost_port(use_cache: bool=False) ->int:
     """
     if not isinstance(use_cache, bool):
         raise pytest.UsageError(
-            "The value of 'use_cache' needs to be an boolean, not {}".
-            format(type(use_cache)))
-    with contextlib.closing(socket.socket(family=socket.AF_INET, type=
-        socket.SOCK_STREAM)) as usock:
+            "The value of 'use_cache' needs to be an boolean, not {}".format(
+                type(use_cache)
+            )
+        )
+    with contextlib.closing(
+        socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)
+    ) as usock:
         usock.bind(('127.0.0.1', 0))
         port = usock.getsockname()[1]
     if use_cache:
@@ -39,7 +43,7 @@ def get_unused_localhost_port(use_cache: bool=False) ->int:
     return port
 
 
-def get_connectable_ports(ports: Iterable[int]) ->Set[int]:
+def get_connectable_ports(ports: Iterable[int]) -> Set[int]:
     """
     Given a list of ports, returns those that we can connect to.
 
@@ -50,8 +54,9 @@ def get_connectable_ports(ports: Iterable[int]) ->Set[int]:
     connectable_ports = set()
     check_ports = set(ports)
     for port in set(check_ports):
-        with contextlib.closing(socket.socket(socket.AF_INET, socket.
-            SOCK_STREAM)) as sock:
+        with contextlib.closing(
+            socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        ) as sock:
             conn = sock.connect_ex(('localhost', port))
             try:
                 if conn == 0:

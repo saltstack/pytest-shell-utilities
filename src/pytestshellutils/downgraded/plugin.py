@@ -10,7 +10,7 @@ from pytestshellutils.shell import Subprocess
 
 
 @pytest.fixture
-def shell() ->Subprocess:
+def shell() -> Subprocess:
     """
     Shell fixture.
     """

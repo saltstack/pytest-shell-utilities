@@ -12,6 +12,7 @@ from typing import TYPE_CHECKING
 import attr
 from typing_extensions import Protocol
 from pytestshellutils.utils import format_callback_to_string
+
 if TYPE_CHECKING:
     from pytestshellutils.shell import Daemon
 
@@ -21,7 +22,7 @@ class EnvironDict(Dict[str, str]):
     Environ dictionary type.
     """
 
-    def __str__(self) ->str:
+    def __str__(self) -> str:
         """
         String representation of the class.
         """
@@ -33,7 +34,7 @@ class GenericCallback(Protocol):
     Generic callback function.
     """
 
-    def __call__(self, *args: Any, **kwargs: Any) ->None:
+    def __call__(self, *args: Any, **kwargs: Any) -> None:
         """
         Call the generic callback.
         """
@@ -45,7 +46,7 @@ class DaemonCallback(Protocol):
     Daemon callback function.
     """
 
-    def __call__(self, daemon: 'Daemon') ->None:
+    def __call__(self, daemon: 'Daemon') -> None:
         """
         Call the daemon callback.
         """
@@ -57,17 +58,18 @@ class Callback:
     """
     Class which "stores" information of a callback.
     """
+
     func = attr.ib()
     args = attr.ib(default=None)
     kwargs = attr.ib(default=None)
 
-    def __str__(self) ->str:
+    def __str__(self) -> str:
         """
         String representation of the class.
         """
         return format_callback_to_string(self.func, self.args, self.kwargs)
 
-    def __call__(self) ->Any:
+    def __call__(self) -> Any:
         """
         Call the callback.
         """

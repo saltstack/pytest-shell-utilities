@@ -8,11 +8,11 @@ import re
 import sys
 
 
-USE_UNTYPED_TRANSPILED_CODE = sys.version_info < (3, 6)
+USE_DOWNGRADED_TRANSPILED_CODE = sys.version_info < (3, 6)
 
 
-if USE_UNTYPED_TRANSPILED_CODE:
-    # We generated untyped code just for Py3.5
+if USE_DOWNGRADED_TRANSPILED_CODE:
+    # We generated downgraded code just for Py3.5
     # Let's just import from those modules instead
 
     class NoTypingImporter:
@@ -22,7 +22,7 @@ if USE_UNTYPED_TRANSPILED_CODE:
 
         NO_REDIRECT_NAMES = (
             "pytestshellutils.version",
-            "pytestshellutils.untyped",
+            "pytestshellutils.downgraded",
         )
 
         def find_module(self, module_name, package_path=None):  # noqa: D102
@@ -34,7 +34,7 @@ if USE_UNTYPED_TRANSPILED_CODE:
 
         def load_module(self, name):  # noqa: D102
             if not name.startswith(self.NO_REDIRECT_NAMES):
-                mod = importlib.import_module("pytestshellutils.untyped.{}".format(name[17:]))
+                mod = importlib.import_module("pytestshellutils.downgraded.{}".format(name[17:]))
             else:
                 mod = importlib.import_module(name)
             sys.modules[name] = mod

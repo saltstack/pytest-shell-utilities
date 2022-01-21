@@ -17,6 +17,7 @@ from typing import Optional
 import attr
 import psutil
 from pytestshellutils.utils import warn_until
+
 log = logging.getLogger(__name__)
 
 
@@ -47,6 +48,7 @@ class ProcessResult:
 
         Cast :py:class:`~pytestshellutils.utils.processes.ProcessResult` to a string to pretty-print it.
     """
+
     returncode = attr.ib()
     stdout = attr.ib()
     stderr = attr.ib()
@@ -55,16 +57,17 @@ class ProcessResult:
     data = attr.ib()
 
     @returncode.validator
-    def _validate_returncode(self, attribute: Any, value: int) ->None:
+    def _validate_returncode(self, attribute: Any, value: int) -> None:
         """
         Validate the value type.
         """
         if not isinstance(value, int):
-            raise ValueError("'returncode' needs to be an integer, not '{0}'"
-                .format(type(value)))
+            raise ValueError(
+                "'returncode' needs to be an integer, not '{0}'".format(type(value))
+            )
 
     @data.default
-    def _default_data(self) ->Optional[Dict[Any, Any]]:
+    def _default_data(self) -> Optional[Dict[Any, Any]]:
         """
         Try to parse the passed ``stdout`` as JSON as the default data value.
         """
@@ -80,7 +83,7 @@ class ProcessResult:
         return None
 
     @property
-    def exitcode(self) ->int:
+    def exitcode(self) -> int:
         """
         Return the process returncode.
 
@@ -88,12 +91,13 @@ class ProcessResult:
         It only exists to support projects that are migrating from
         pytest-salt-factories versions.
         """
-        warn_until('2.0.0',
-            "The '.exitcode' property is deprecated and will cease to exist after {version}. Please use '.returncode' instead."
-            )
+        warn_until(
+            '2.0.0',
+            "The '.exitcode' property is deprecated and will cease to exist after {version}. Please use '.returncode' instead.",
+        )
         return self.returncode
 
-    def __str__(self) ->str:
+    def __str__(self) -> str:
         """
         String representation of the class.
         """
@@ -105,19 +109,22 @@ class ProcessResult:
         if self.stdout.strip() or self.stderr.strip():
             message += '\n Process Output:'
         if self.stdout.strip():
-            message += ('\n   >>>>> STDOUT >>>>>\n{0}\n   <<<<< STDOUT <<<<<'
-                .format(self.stdout))
+            message += '\n   >>>>> STDOUT >>>>>\n{0}\n   <<<<< STDOUT <<<<<'.format(
+                self.stdout
+            )
         if self.stderr.strip():
-            message += ('\n   >>>>> STDERR >>>>>\n{0}\n   <<<<< STDERR <<<<<'
-                .format(self.stderr))
+            message += '\n   >>>>> STDERR >>>>>\n{0}\n   <<<<< STDERR <<<<<'.format(
+                self.stderr
+            )
         if self.data:
             message += '\n Parsed JSON Data:\n'
-            message += '\n'.join('   {0}'.format(line) for line in pprint.
-                pformat(self.data).splitlines())
+            message += '\n'.join(
+                '   {0}'.format(line) for line in pprint.pformat(self.data).splitlines()
+            )
         return message + '\n'
 
 
-def collect_child_processes(pid: int) ->List[psutil.Process]:
+def collect_child_processes(pid: int) -> List[psutil.Process]:
     """
     Try to collect any started child processes of the provided pid.
 
@@ -133,7 +140,7 @@ def collect_child_processes(pid: int) ->List[psutil.Process]:
     return children
 
 
-def _get_cmdline(proc: psutil.Process) ->Optional[Any]:
+def _get_cmdline(proc: psutil.Process) -> Optional[Any]:
     try:
         return proc._cmdline
     except AttributeError:
@@ -149,18 +156,20 @@ def _get_cmdline(proc: psutil.Process) ->Optional[Any]:
             try:
                 cmdline = proc.as_dict()
             except psutil.NoSuchProcess:
-                cmdline = '<could not be retrived; dead process: {0}>'.format(
-                    proc)
+                cmdline = '<could not be retrived; dead process: {0}>'.format(proc)
             except (psutil.AccessDenied, OSError):
                 cmdline = weakref.proxy(proc)
         proc._cmdline = cmdline
     return proc._cmdline
 
 
-def _terminate_process_list(process_list: List[psutil.Process], kill: bool=
-    False, slow_stop: bool=False) ->None:
-    log.info('Terminating process list:\n%s', pprint.pformat([_get_cmdline(
-        proc) for proc in process_list]))
+def _terminate_process_list(
+    process_list: List[psutil.Process], kill: bool = False, slow_stop: bool = False
+) -> None:
+    log.info(
+        'Terminating process list:\n%s',
+        pprint.pformat([_get_cmdline(proc) for proc in process_list]),
+    )
     for process in process_list[:]:
         if not psutil.pid_exists(process.pid):
             process_list.remove(process)
@@ -169,12 +178,12 @@ def _terminate_process_list(process_list: List[psutil.Process], kill: bool=
             if not kill and process.status() == psutil.STATUS_ZOMBIE:
                 continue
             if kill:
-                log.info('Killing process(%s): %s', process.pid,
-                    _get_cmdline(process))
+                log.info('Killing process(%s): %s', process.pid, _get_cmdline(process))
                 process.kill()
             else:
-                log.info('Terminating process(%s): %s', process.pid,
-                    _get_cmdline(process))
+                log.info(
+                    'Terminating process(%s): %s', process.pid, _get_cmdline(process)
+                )
                 try:
                     if slow_stop:
                         process.send_signal(signal.SIGTERM)
@@ -194,8 +203,9 @@ def _terminate_process_list(process_list: List[psutil.Process], kill: bool=
             process_list.remove(process)
 
 
-def terminate_process_list(process_list: List[psutil.Process], kill: bool=
-    False, slow_stop: bool=False) ->None:
+def terminate_process_list(
+    process_list: List[psutil.Process], kill: bool = False, slow_stop: bool = False
+) -> None:
     """
     Terminate a list of processes.
 
@@ -207,11 +217,16 @@ def terminate_process_list(process_list: List[psutil.Process], kill: bool=
         First try to terminate each process in the list, and if termination was not successful, kill it.
     """
 
-    def on_process_terminated(proc: psutil.Process) ->None:
-        log.info('Process %s terminated with exit code: %s', getattr(proc,
-            '_cmdline', proc), proc.returncode)
-    log.info('Terminating process list. 1st step. kill: %s, slow stop: %s',
-        kill, slow_stop)
+    def on_process_terminated(proc: psutil.Process) -> None:
+        log.info(
+            'Process %s terminated with exit code: %s',
+            getattr(proc, '_cmdline', proc),
+            proc.returncode,
+        )
+
+    log.info(
+        'Terminating process list. 1st step. kill: %s, slow stop: %s', kill, slow_stop
+    )
     seen_pids = []
     start_count = len(process_list)
     for proc in process_list[:]:
@@ -220,31 +235,37 @@ def terminate_process_list(process_list: List[psutil.Process], kill: bool=
         seen_pids.append(proc.pid)
     end_count = len(process_list)
     if end_count < start_count:
-        log.debug('Removed %d duplicates from the initial process list', 
-            start_count - end_count)
+        log.debug(
+            'Removed %d duplicates from the initial process list',
+            start_count - end_count,
+        )
     _terminate_process_list(process_list, kill=kill, slow_stop=slow_stop)
     psutil.wait_procs(process_list, timeout=5, callback=on_process_terminated)
     if process_list:
-        log.info('Terminating process list. 2nd step. kill: %s, slow stop: %s',
-            slow_stop is False, slow_stop)
-        _terminate_process_list(process_list, kill=slow_stop is False,
-            slow_stop=slow_stop)
-        psutil.wait_procs(process_list, timeout=5, callback=
-            on_process_terminated)
-    if process_list:
         log.info(
-            'Terminating process list. 3rd step. kill: True, slow stop: False')
-        _terminate_process_list(process_list, kill=True, slow_stop=False)
-        psutil.wait_procs(process_list, timeout=5, callback=
-            on_process_terminated)
+            'Terminating process list. 2nd step. kill: %s, slow stop: %s',
+            slow_stop is False,
+            slow_stop,
+        )
+        _terminate_process_list(
+            process_list, kill=slow_stop is False, slow_stop=slow_stop
+        )
+        psutil.wait_procs(process_list, timeout=5, callback=on_process_terminated)
     if process_list:
-        log.warning('Some processes failed to properly terminate: %s',
-            process_list)
+        log.info('Terminating process list. 3rd step. kill: True, slow stop: False')
+        _terminate_process_list(process_list, kill=True, slow_stop=False)
+        psutil.wait_procs(process_list, timeout=5, callback=on_process_terminated)
+    if process_list:
+        log.warning('Some processes failed to properly terminate: %s', process_list)
 
 
-def terminate_process(pid: Optional[int]=None, process: Optional[psutil.
-    Process]=None, children: Optional[List[psutil.Process]]=None,
-    kill_children: Optional[bool]=None, slow_stop: bool=False) ->None:
+def terminate_process(
+    pid: Optional[int] = None,
+    process: Optional[psutil.Process] = None,
+    children: Optional[List[psutil.Process]] = None,
+    kill_children: Optional[bool] = None,
+    slow_stop: bool = False,
+) -> None:
     """
     Try to terminate/kill the started process.
 
@@ -276,9 +297,11 @@ def terminate_process(pid: Optional[int]=None, process: Optional[psutil.
             process_list.extend(children)
     if process_list:
         if process:
-            log.info('Stopping process %s and respective children: %s',
-                process, children)
+            log.info(
+                'Stopping process %s and respective children: %s', process, children
+            )
         else:
             log.info('Terminating process list: %s', process_list)
-        terminate_process_list(process_list, kill=slow_stop is False,
-            slow_stop=slow_stop)
+        terminate_process_list(
+            process_list, kill=slow_stop is False, slow_stop=slow_stop
+        )

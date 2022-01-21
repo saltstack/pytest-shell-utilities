@@ -30,13 +30,14 @@ class ProcessFailed(ShellUtilsException):
         The ``ProcessResult`` instance when the exception occurred
     """
 
-    def __init__(self, message: str, process_result: Optional[ProcessResult
-        ]=None) ->None:
+    def __init__(
+        self, message: str, process_result: Optional[ProcessResult] = None
+    ) -> None:
         super().__init__()
         self.message = message
         self.process_result = process_result
 
-    def __str__(self) ->str:
+    def __str__(self) -> str:
         """
         Return a printable representation of the exception.
         """

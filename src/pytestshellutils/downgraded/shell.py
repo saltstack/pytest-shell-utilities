@@ -42,6 +42,7 @@ from pytestshellutils.utils import time
 from pytestshellutils.utils.processes import ProcessResult
 from pytestshellutils.utils.processes import terminate_process
 from pytestshellutils.utils.processes import terminate_process_list
+
 if TYPE_CHECKING:
     from typing import Type
     from pytestsysstats.plugin import StatsProcesses
@@ -57,6 +58,7 @@ class SubprocessImpl:
         The factory instance, either :py:class:`~pytestshellutils.shell.Subprocess` or
         a sub-class of it.
     """
+
     factory = attr.ib()
     _terminal = attr.ib(repr=False, init=False, default=None)
     _terminal_stdout = attr.ib(repr=False, init=False, default=None)
@@ -65,7 +67,7 @@ class SubprocessImpl:
     _terminal_timeout = attr.ib(repr=False, init=False, default=None)
     _children = attr.ib(repr=False, init=False, factory=list)
 
-    def cmdline(self, *args: str, **kwargs: Any) ->List[str]:
+    def cmdline(self, *args: str, **kwargs: Any) -> List[str]:
         """
         Construct a list of arguments to use when starting the subprocess.
 
@@ -77,8 +79,9 @@ class SubprocessImpl:
         """
         return self.factory.cmdline(*args)
 
-    def init_terminal(self, cmdline: List[str], env: Optional[EnvironDict]=None
-        ) ->'subprocess.Popen[Any]':
+    def init_terminal(
+        self, cmdline: List[str], env: Optional[EnvironDict] = None
+    ) -> 'subprocess.Popen[Any]':
         """
         Instantiate a terminal with the passed command line(``cmdline``) and return it.
 
@@ -104,23 +107,31 @@ class SubprocessImpl:
             close_fds = False
         else:
             close_fds = True
-        self._terminal = subprocess.Popen(cmdline, stdout=self.
-            _terminal_stdout, stderr=self._terminal_stderr, shell=False,
-            cwd=str(self.factory.cwd), universal_newlines=True, close_fds=
-            close_fds, env=environ, bufsize=0)
+        self._terminal = subprocess.Popen(
+            cmdline,
+            stdout=self._terminal_stdout,
+            stderr=self._terminal_stderr,
+            shell=False,
+            cwd=str(self.factory.cwd),
+            universal_newlines=True,
+            close_fds=close_fds,
+            env=environ,
+            bufsize=0,
+        )
         self._terminal_result = None
         try:
             self._terminal.wait(timeout=0.05)
         except subprocess.TimeoutExpired:
             with contextlib.suppress(psutil.NoSuchProcess):
                 for child in psutil.Process(self._terminal.pid).children(
-                    recursive=True):
+                    recursive=True
+                ):
                     if child not in self._children:
                         self._children.append(child)
             atexit.register(self.terminate)
         return self._terminal
 
-    def is_running(self) ->bool:
+    def is_running(self) -> bool:
         """
         Returns true if the sub-process is alive.
 
@@ -131,7 +142,7 @@ class SubprocessImpl:
             return False
         return self._terminal.poll() is None
 
-    def terminate(self) ->ProcessResult:
+    def terminate(self) -> ProcessResult:
         """
         Terminate the started subprocess.
 
@@ -139,7 +150,7 @@ class SubprocessImpl:
         """
         return self._terminate()
 
-    def _terminate(self) ->ProcessResult:
+    def _terminate(self) -> ProcessResult:
         """
         This method actually terminates the started subprocess.
         """
@@ -150,8 +161,7 @@ class SubprocessImpl:
         atexit.unregister(self.terminate)
         log.info('Stopping %s', self.factory)
         with contextlib.suppress(psutil.NoSuchProcess):
-            for child in psutil.Process(self._terminal.pid).children(recursive
-                =True):
+            for child in psutil.Process(self._terminal.pid).children(recursive=True):
                 if child not in self._children:
                     self._children.append(child)
         with self._terminal:
@@ -163,8 +173,12 @@ class SubprocessImpl:
                 self._terminal.wait(10)
             except subprocess.TimeoutExpired:
                 pass
-            terminate_process(pid=self._terminal.pid, kill_children=True,
-                children=self._children, slow_stop=self.factory.slow_stop)
+            terminate_process(
+                pid=self._terminal.pid,
+                kill_children=True,
+                children=self._children,
+                slow_stop=self.factory.slow_stop,
+            )
             self._terminal.wait()
             self._terminal.poll()
             self._terminal.communicate()
@@ -173,31 +187,39 @@ class SubprocessImpl:
             self._terminal_stdout.flush()
             self._terminal_stdout.seek(0)
             if sys.version_info < (3, 6):
-                stdout = self._terminal._translate_newlines(self.
-                    _terminal_stdout.read(), self.factory.system_encoding)
+                stdout = self._terminal._translate_newlines(
+                    self._terminal_stdout.read(), self.factory.system_encoding
+                )
             else:
-                stdout = self._terminal._translate_newlines(self.
-                    _terminal_stdout.read(), self.factory.system_encoding,
-                    sys.stdout.errors)
+                stdout = self._terminal._translate_newlines(
+                    self._terminal_stdout.read(),
+                    self.factory.system_encoding,
+                    sys.stdout.errors,
+                )
             self._terminal_stdout.close()
             if TYPE_CHECKING:
                 assert self._terminal_stderr
             self._terminal_stderr.flush()
             self._terminal_stderr.seek(0)
             if sys.version_info < (3, 6):
-                stderr = self._terminal._translate_newlines(self.
-                    _terminal_stderr.read(), self.factory.system_encoding)
+                stderr = self._terminal._translate_newlines(
+                    self._terminal_stderr.read(), self.factory.system_encoding
+                )
             else:
-                stderr = self._terminal._translate_newlines(self.
-                    _terminal_stderr.read(), self.factory.system_encoding,
-                    sys.stderr.errors)
+                stderr = self._terminal._translate_newlines(
+                    self._terminal_stderr.read(),
+                    self.factory.system_encoding,
+                    sys.stderr.errors,
+                )
             self._terminal_stderr.close()
         try:
-            self._terminal_result = ProcessResult(returncode=self._terminal
-                .returncode, stdout=stdout, stderr=stderr, cmdline=cast(
-                List[str], self._terminal.args))
-            log.info('%s %s', self.factory.__class__.__name__, self.
-                _terminal_result)
+            self._terminal_result = ProcessResult(
+                returncode=self._terminal.returncode,
+                stdout=stdout,
+                stderr=stderr,
+                cmdline=cast(List[str], self._terminal.args),
+            )
+            log.info('%s %s', self.factory.__class__.__name__, self._terminal_result)
             return self._terminal_result
         finally:
             self._terminal = None
@@ -206,7 +228,7 @@ class SubprocessImpl:
             self._children = []
 
     @property
-    def pid(self) ->Optional[int]:
+    def pid(self) -> Optional[int]:
         """
         The pid of the running process. None if not running.
         """
@@ -214,14 +236,16 @@ class SubprocessImpl:
             return None
         return self._terminal.pid
 
-    def run(self, *args: str, env: Optional[EnvironDict]=None, **kwargs: Any
-        ) ->'subprocess.Popen[Any]':
+    def run(
+        self, *args: str, env: Optional[EnvironDict] = None, **kwargs: Any
+    ) -> 'subprocess.Popen[Any]':
         """
         Run the given command synchronously.
         """
         cmdline = self.cmdline(*args, **kwargs)
-        log.info('%s is running %r in CWD: %s ...', self.factory, cmdline,
-            self.factory.cwd)
+        log.info(
+            '%s is running %r in CWD: %s ...', self.factory, cmdline, self.factory.cwd
+        )
         return self.init_terminal(cmdline, env=env)
 
 
@@ -247,6 +271,7 @@ class Factory:
         the ``_timeout`` keyword argument, and, in that case, the timeout value applied would be that
         of ``_timeout`` instead of ``self.timeout``.
     """
+
     cwd = attr.ib(converter=resolved_pathlib_path)
     environ = attr.ib(repr=False)
     slow_stop = attr.ib(default=True)
@@ -256,28 +281,28 @@ class Factory:
     _cmdline = attr.ib(repr=False, init=False, default=None)
 
     @cwd.default
-    def _default_cwd(self) ->pathlib.Path:
+    def _default_cwd(self) -> pathlib.Path:
         """
         Return the default cwd to use.
         """
         return pathlib.Path.cwd()
 
     @environ.default
-    def _default_environ(self) ->EnvironDict:
+    def _default_environ(self) -> EnvironDict:
         """
         Return the default ``os.environ`` to use.
         """
         return cast(EnvironDict, os.environ.copy())
 
     @system_encoding.default
-    def _default_system_encoding(self) ->str:
+    def _default_system_encoding(self) -> str:
         return self._get_default_system_encoding()
 
     @timeout.default
-    def _set_timeout(self) ->Optional[int]:
+    def _set_timeout(self) -> Optional[int]:
         return self._get_default_timeout()
 
-    def _get_default_system_encoding(self) ->str:
+    def _get_default_system_encoding(self) -> str:
         encoding = None
         if not platform.is_windows() and sys.stdin is not None:
             encoding = sys.stdin.encoding
@@ -299,49 +324,49 @@ class Factory:
             encoding = 'utf-8'
         return encoding
 
-    def _get_default_timeout(self) ->Optional[int]:
+    def _get_default_timeout(self) -> Optional[int]:
         return None
 
-    def _get_impl_class(self) ->'Type[SubprocessImpl]':
+    def _get_impl_class(self) -> 'Type[SubprocessImpl]':
         """
         Return the ``impl`` class to use.
         """
         return SubprocessImpl
 
-    def __attrs_post_init__(self) ->None:
+    def __attrs_post_init__(self) -> None:
         """
         Post ``attrs`` class initialization routines.
         """
         impl_class = self._get_impl_class()
         self.impl = impl_class(factory=self)
 
-    def cmdline(self, *args: str) ->List[str]:
+    def cmdline(self, *args: str) -> List[str]:
         """
         Method to construct a command line.
         """
         self._cmdline = list(args)
         return self._cmdline
 
-    def get_display_name(self) ->str:
+    def get_display_name(self) -> str:
         """
         Returns a human readable name for the factory.
         """
         return '{}({})'.format(self.__class__.__name__, self._cmdline or '')
 
-    def is_running(self) ->bool:
+    def is_running(self) -> bool:
         """
         Returns true if the sub-process is alive.
         """
         return self.impl.is_running()
 
-    def terminate(self) ->ProcessResult:
+    def terminate(self) -> ProcessResult:
         """
         Terminate the started subprocess.
         """
         return self.impl.terminate()
 
     @property
-    def pid(self) ->Optional[int]:
+    def pid(self) -> Optional[int]:
         """
         The pid of the running process. None if not running.
         """
@@ -354,8 +379,13 @@ class Subprocess(Factory):
     Base shell factory class.
     """
 
-    def run(self, *args: str, env: Optional[EnvironDict]=None, _timeout:
-        Optional[Union[int, float]]=None, **kwargs: Any) ->ProcessResult:
+    def run(
+        self,
+        *args: str,
+        env: Optional[EnvironDict] = None,
+        _timeout: Optional[Union[int, float]] = None,
+        **kwargs: Any
+    ) -> ProcessResult:
         """
         Run the given command synchronously.
 
@@ -374,8 +404,7 @@ class Subprocess(Factory):
             self.impl.run(*args, env=env, **kwargs)
             if TYPE_CHECKING:
                 assert self.impl._terminal
-            self.impl._terminal.communicate(timeout=self.impl._terminal_timeout
-                )
+            self.impl._terminal.communicate(timeout=self.impl._terminal_timeout)
         except subprocess.TimeoutExpired:
             timmed_out = True
         result = self.terminate()
@@ -383,18 +412,32 @@ class Subprocess(Factory):
         returncode = result.returncode
         if timmed_out:
             raise FactoryTimeout(
-                '{} Failed to run: {}; Error: Timed out after {:.2f} seconds!'
-                .format(self, cmdline, time.time() - start_time),
-                process_result=result)
-        stdout, stderr, json_out = self.process_output(result.stdout,
-            result.stderr, cmdline=cmdline)
-        log.info('%s completed %r in CWD: %s after %.2f seconds', self,
-            cmdline, self.cwd, time.time() - start_time)
-        return ProcessResult(returncode=returncode, stdout=stdout, stderr=
-            stderr, data=json_out, cmdline=cmdline)
+                '{} Failed to run: {}; Error: Timed out after {:.2f} seconds!'.format(
+                    self, cmdline, time.time() - start_time
+                ),
+                process_result=result,
+            )
+        stdout, stderr, json_out = self.process_output(
+            result.stdout, result.stderr, cmdline=cmdline
+        )
+        log.info(
+            '%s completed %r in CWD: %s after %.2f seconds',
+            self,
+            cmdline,
+            self.cwd,
+            time.time() - start_time,
+        )
+        return ProcessResult(
+            returncode=returncode,
+            stdout=stdout,
+            stderr=stderr,
+            data=json_out,
+            cmdline=cmdline,
+        )
 
-    def process_output(self, stdout: str, stderr: str, cmdline: Optional[
-        List[str]]=None) ->Tuple[str, str, Optional[Dict[Any, Any]]]:
+    def process_output(
+        self, stdout: str, stderr: str, cmdline: Optional[List[str]] = None
+    ) -> Tuple[str, str, Optional[Dict[Any, Any]]]:
         """
         Process the output. When possible JSON is loaded from the output.
 
@@ -408,7 +451,9 @@ class Subprocess(Factory):
             except ValueError:
                 log.debug(
                     '%s failed to load JSON from the following output:\n%r',
-                    self, stdout)
+                    self,
+                    stdout,
+                )
                 json_out = None
         else:
             json_out = None
@@ -431,17 +476,19 @@ class ScriptSubprocess(Subprocess):
     Please look at :py:class:`~pytestshellutils.shell.Factory` for the additional supported keyword
     arguments documentation.
     """
+
     script_name = attr.ib()
     base_script_args = attr.ib(factory=list)
 
-    def get_display_name(self) ->str:
+    def get_display_name(self) -> str:
         """
         Returns a human readable name for the factory.
         """
-        return '{}({})'.format(self.__class__.__name__, pathlib.Path(self.
-            script_name).name)
+        return '{}({})'.format(
+            self.__class__.__name__, pathlib.Path(self.script_name).name
+        )
 
-    def get_script_path(self) ->str:
+    def get_script_path(self) -> str:
         """
         Returns the path to the script to run.
         """
@@ -451,25 +498,26 @@ class ScriptSubprocess(Subprocess):
         else:
             script_path = shutil.which(self.script_name)
         if not script_path or not os.path.exists(script_path):
-            raise FileNotFoundError('The CLI script {!r} does not exist'.
-                format(self.script_name))
+            raise FileNotFoundError(
+                'The CLI script {!r} does not exist'.format(self.script_name)
+            )
         if TYPE_CHECKING:
             assert script_path
         return script_path
 
-    def get_base_script_args(self) ->List[str]:
+    def get_base_script_args(self) -> List[str]:
         """
         Returns any additional arguments to pass to the CLI script.
         """
         return list(self.base_script_args)
 
-    def get_script_args(self) ->List[str]:
+    def get_script_args(self) -> List[str]:
         """
         Returns any additional arguments to pass to the CLI script.
         """
         return []
 
-    def cmdline(self, *args: str) ->List[str]:
+    def cmdline(self, *args: str) -> List[str]:
         """
         Construct a list of arguments to use when starting the subprocess.
 
@@ -478,8 +526,12 @@ class ScriptSubprocess(Subprocess):
 
         :rtype: list
         """
-        return [self.get_script_path()] + self.get_base_script_args(
-            ) + self.get_script_args() + list(args)
+        return (
+            [self.get_script_path()]
+            + self.get_base_script_args()
+            + self.get_script_args()
+            + list(args)
+        )
 
 
 @attr.s(kw_only=True, slots=True, frozen=True)
@@ -494,6 +546,7 @@ class StartDaemonCallArguments:
     :keyword dict kwargs:
         Dictionary of keyword arguments
     """
+
     args = attr.ib()
     kwargs = attr.ib()
 
@@ -506,6 +559,7 @@ class DaemonImpl(SubprocessImpl):
     Please look at :py:class:`~pytestshellutils.shell.SubprocessImpl` for the additional supported keyword
     arguments documentation.
     """
+
     factory = attr.ib()
     _before_start_callbacks = attr.ib(repr=False, hash=False, factory=list)
     _after_start_callbacks = attr.ib(repr=False, hash=False, factory=list)
@@ -513,8 +567,9 @@ class DaemonImpl(SubprocessImpl):
     _after_terminate_callbacks = attr.ib(repr=False, hash=False, factory=list)
     _start_args_and_kwargs = attr.ib(init=False, repr=False, hash=False)
 
-    def before_start(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def before_start(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run before the daemon starts.
 
@@ -525,11 +580,13 @@ class DaemonImpl(SubprocessImpl):
         :keyword kwargs:
             The keyword arguments to pass to the callback
         """
-        self._before_start_callbacks.append(Callback(func=callback, args=
-            args, kwargs=kwargs))
+        self._before_start_callbacks.append(
+            Callback(func=callback, args=args, kwargs=kwargs)
+        )
 
-    def after_start(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def after_start(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run after the daemon starts.
 
@@ -540,11 +597,13 @@ class DaemonImpl(SubprocessImpl):
         :keyword kwargs:
             The keyword arguments to pass to the callback
         """
-        self._after_start_callbacks.append(Callback(func=callback, args=
-            args, kwargs=kwargs))
+        self._after_start_callbacks.append(
+            Callback(func=callback, args=args, kwargs=kwargs)
+        )
 
-    def before_terminate(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def before_terminate(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run before the daemon terminates.
 
@@ -555,11 +614,13 @@ class DaemonImpl(SubprocessImpl):
         :keyword kwargs:
             The keyword arguments to pass to the callback
         """
-        self._before_terminate_callbacks.append(Callback(func=callback,
-            args=args, kwargs=kwargs))
+        self._before_terminate_callbacks.append(
+            Callback(func=callback, args=args, kwargs=kwargs)
+        )
 
-    def after_terminate(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def after_terminate(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run after the daemon terminates.
 
@@ -570,11 +631,16 @@ class DaemonImpl(SubprocessImpl):
         :keyword kwargs:
             The keyword arguments to pass to the callback
         """
-        self._after_terminate_callbacks.append(Callback(func=callback, args
-            =args, kwargs=kwargs))
+        self._after_terminate_callbacks.append(
+            Callback(func=callback, args=args, kwargs=kwargs)
+        )
 
-    def start(self, *extra_cli_arguments: str, max_start_attempts: Optional
-        [int]=None, start_timeout: Optional[Union[int, float]]=None) ->bool:
+    def start(
+        self,
+        *extra_cli_arguments: str,
+        max_start_attempts: Optional[int] = None,
+        start_timeout: Optional[Union[int, float]] = None
+    ) -> bool:
         """
         Start the daemon.
 
@@ -588,9 +654,13 @@ class DaemonImpl(SubprocessImpl):
         if self.is_running():
             log.warning('%s is already running.', self)
             return True
-        self._start_args_and_kwargs = StartDaemonCallArguments(args=
-            extra_cli_arguments, kwargs={'max_start_attempts':
-            max_start_attempts, 'start_timeout': start_timeout})
+        self._start_args_and_kwargs = StartDaemonCallArguments(
+            args=extra_cli_arguments,
+            kwargs={
+                'max_start_attempts': max_start_attempts,
+                'start_timeout': start_timeout,
+            },
+        )
         process_running = False
         start_time = time.time()
         start_attempts = max_start_attempts or self.factory.max_start_attempts
@@ -602,21 +672,33 @@ class DaemonImpl(SubprocessImpl):
             current_attempt += 1
             if current_attempt > start_attempts:
                 break
-            log.info('Starting %s. Attempt: %d of %d', self.factory,
-                current_attempt, start_attempts)
+            log.info(
+                'Starting %s. Attempt: %d of %d',
+                self.factory,
+                current_attempt,
+                start_attempts,
+            )
             for callback in self._before_start_callbacks:
                 try:
                     callback()
                 except CallbackException as exc:
-                    log.info('Exception raised when running %s: %s',
-                        callback, exc, exc_info=True)
+                    log.info(
+                        'Exception raised when running %s: %s',
+                        callback,
+                        exc,
+                        exc_info=True,
+                    )
             current_start_time = time.time()
-            start_running_timeout = current_start_time + (start_timeout or
-                self.factory.start_timeout)
-            if (current_attempt > 1 and self.factory.
-                extra_cli_arguments_after_first_start_failure):
-                run_arguments = list(extra_cli_arguments) + list(self.
-                    factory.extra_cli_arguments_after_first_start_failure)
+            start_running_timeout = current_start_time + (
+                start_timeout or self.factory.start_timeout
+            )
+            if (
+                current_attempt > 1
+                and self.factory.extra_cli_arguments_after_first_start_failure
+            ):
+                run_arguments = list(extra_cli_arguments) + list(
+                    self.factory.extra_cli_arguments_after_first_start_failure
+                )
             self.run(*run_arguments)
             if not self.is_running():
                 time.sleep(0.5)
@@ -626,16 +708,23 @@ class DaemonImpl(SubprocessImpl):
                     self.terminate()
                     break
                 try:
-                    if self.factory.run_start_checks(current_start_time,
-                        start_running_timeout) is False:
+                    if (
+                        self.factory.run_start_checks(
+                            current_start_time, start_running_timeout
+                        )
+                        is False
+                    ):
                         time.sleep(1)
                         continue
                 except FactoryNotStarted:
                     self.terminate()
                     break
                 log.info(
-                    'The %s factory is running after %d attempts. Took %1.2f seconds'
-                    , self.factory, current_attempt, time.time() - start_time)
+                    'The %s factory is running after %d attempts. Took %1.2f seconds',
+                    self.factory,
+                    current_attempt,
+                    time.time() - start_time,
+                )
                 process_running = True
                 break
             else:
@@ -645,16 +734,22 @@ class DaemonImpl(SubprocessImpl):
                 try:
                     callback()
                 except CallbackException as exc:
-                    log.info('Exception raised when running %s: %s',
-                        callback, exc, exc_info=True)
+                    log.info(
+                        'Exception raised when running %s: %s',
+                        callback,
+                        exc,
+                        exc_info=True,
+                    )
             return process_running
         result = self.terminate()
         raise FactoryNotStarted(
-            'The {} factory has failed to confirm running status after {} attempts, which took {:.2f} seconds'
-            .format(self.factory, current_attempt - 1, time.time() -
-            start_time), process_result=result)
+            'The {} factory has failed to confirm running status after {} attempts, which took {:.2f} seconds'.format(
+                self.factory, current_attempt - 1, time.time() - start_time
+            ),
+            process_result=result,
+        )
 
-    def terminate(self) ->ProcessResult:
+    def terminate(self) -> ProcessResult:
         """
         Terminate the daemon.
         """
@@ -664,8 +759,9 @@ class DaemonImpl(SubprocessImpl):
             try:
                 callback()
             except CallbackException as exc:
-                log.info('Exception raised when running %s: %s', callback,
-                    exc, exc_info=True)
+                log.info(
+                    'Exception raised when running %s: %s', callback, exc, exc_info=True
+                )
         try:
             return super().terminate()
         finally:
@@ -673,10 +769,14 @@ class DaemonImpl(SubprocessImpl):
                 try:
                     callback()
                 except CallbackException as exc:
-                    log.warning('Exception raised when running %s: %s',
-                        callback, exc, exc_info=True)
+                    log.warning(
+                        'Exception raised when running %s: %s',
+                        callback,
+                        exc,
+                        exc_info=True,
+                    )
 
-    def get_start_arguments(self) ->StartDaemonCallArguments:
+    def get_start_arguments(self) -> StartDaemonCallArguments:
         """
         Return the arguments and keyword arguments used when starting the daemon.
 
@@ -702,6 +802,7 @@ class Daemon(ScriptSubprocess):
     Please look at :py:class:`~pytestshellutils.shell.Subprocess` for the additional supported keyword
     arguments documentation.
     """
+
     impl = attr.ib(repr=False, init=False)
     script_name = attr.ib()
     base_script_args = attr.ib(factory=list)
@@ -709,23 +810,21 @@ class Daemon(ScriptSubprocess):
     stats_processes = attr.ib(repr=False, hash=False, default=None)
     start_timeout = attr.ib(repr=False)
     max_start_attempts = attr.ib(repr=False, default=3)
-    extra_cli_arguments_after_first_start_failure = attr.ib(hash=False,
-        factory=list)
+    extra_cli_arguments_after_first_start_failure = attr.ib(hash=False, factory=list)
     listen_ports = attr.ib(init=False, repr=False, hash=False, factory=list)
 
-    def _get_impl_class(self) ->'Type[DaemonImpl]':
+    def _get_impl_class(self) -> 'Type[DaemonImpl]':
         """
         Return the ``impl`` class to use.
         """
         return DaemonImpl
 
-    def __attrs_post_init__(self) ->None:
+    def __attrs_post_init__(self) -> None:
         """
         Post ``attrs`` class initialization routines.
         """
         super().__attrs_post_init__()
-        if self.check_ports and not isinstance(self.check_ports, (list, tuple)
-            ):
+        if self.check_ports and not isinstance(self.check_ports, (list, tuple)):
             self.check_ports = [self.check_ports]
         if self.check_ports:
             self.listen_ports.extend(self.check_ports)
@@ -733,8 +832,9 @@ class Daemon(ScriptSubprocess):
         self.after_terminate(self._terminate_processes_matching_listen_ports)
         self.after_terminate(self._remove_factory_from_stats_processes)
 
-    def before_start(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def before_start(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run before the daemon starts.
 
@@ -747,8 +847,9 @@ class Daemon(ScriptSubprocess):
         """
         self.impl.before_start(callback, *args, **kwargs)
 
-    def after_start(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def after_start(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run after the daemon starts.
 
@@ -761,8 +862,9 @@ class Daemon(ScriptSubprocess):
         """
         self.impl.after_start(callback, *args, **kwargs)
 
-    def before_terminate(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def before_terminate(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run before the daemon terminates.
 
@@ -775,8 +877,9 @@ class Daemon(ScriptSubprocess):
         """
         self.impl.before_terminate(callback, *args, **kwargs)
 
-    def after_terminate(self, callback: Callable[[], None], *args: Any, **
-        kwargs: Any) ->None:
+    def after_terminate(
+        self, callback: Callable[[], None], *args: Any, **kwargs: Any
+    ) -> None:
         """
         Register a function callback to run after the daemon terminates.
 
@@ -789,36 +892,51 @@ class Daemon(ScriptSubprocess):
         """
         self.impl.after_terminate(callback, *args, **kwargs)
 
-    def get_check_ports(self) ->List[int]:
+    def get_check_ports(self) -> List[int]:
         """
         Return a list of ports to check against to ensure the daemon is running.
         """
         return self.check_ports or []
 
-    def start(self, *extra_cli_arguments: str, max_start_attempts: Optional
-        [int]=None, start_timeout: Optional[Union[int, float]]=None) ->bool:
+    def start(
+        self,
+        *extra_cli_arguments: str,
+        max_start_attempts: Optional[int] = None,
+        start_timeout: Optional[Union[int, float]] = None
+    ) -> bool:
         """
         Start the daemon.
         """
-        return self.impl.start(*extra_cli_arguments, max_start_attempts=
-            max_start_attempts, start_timeout=start_timeout)
+        return self.impl.start(
+            *extra_cli_arguments,
+            max_start_attempts=max_start_attempts,
+            start_timeout=start_timeout,
+        )
 
-    def started(self, *extra_cli_arguments: str, max_start_attempts:
-        Optional[int]=None, start_timeout: Optional[Union[int, float]]=None
-        ) ->'Daemon':
+    def started(
+        self,
+        *extra_cli_arguments: str,
+        max_start_attempts: Optional[int] = None,
+        start_timeout: Optional[Union[int, float]] = None
+    ) -> 'Daemon':
         """
         Start the daemon and return it's instance so it can be used as a context manager.
         """
-        self.start(*extra_cli_arguments, max_start_attempts=
-            max_start_attempts, start_timeout=start_timeout)
+        self.start(
+            *extra_cli_arguments,
+            max_start_attempts=max_start_attempts,
+            start_timeout=start_timeout,
+        )
         return self
 
     @contextlib.contextmanager
-    def stopped(self, before_stop_callback: Optional[Callable[['Daemon'],
-        None]]=None, after_stop_callback: Optional[Callable[['Daemon'],
-        None]]=None, before_start_callback: Optional[Callable[['Daemon'],
-        None]]=None, after_start_callback: Optional[Callable[['Daemon'],
-        None]]=None) ->Generator['Daemon', None, None]:
+    def stopped(
+        self,
+        before_stop_callback: Optional[Callable[['Daemon'], None]] = None,
+        after_stop_callback: Optional[Callable[['Daemon'], None]] = None,
+        before_start_callback: Optional[Callable[['Daemon'], None]] = None,
+        after_start_callback: Optional[Callable[['Daemon'], None]] = None,
+    ) -> Generator['Daemon', None, None]:
         """
         Stop the daemon and return it's instance so it can be used as a context manager.
 
@@ -857,17 +975,23 @@ class Daemon(ScriptSubprocess):
                 try:
                     before_stop_callback(self)
                 except CallbackException as exc:
-                    log.info('Exception raised when running %s: %s',
+                    log.info(
+                        'Exception raised when running %s: %s',
                         format_callback_to_string(before_stop_callback),
-                        exc, exc_info=True)
+                        exc,
+                        exc_info=True,
+                    )
             self.terminate()
             if after_stop_callback:
                 try:
                     after_stop_callback(self)
                 except CallbackException as exc:
-                    log.info('Exception raised when running %s: %s',
-                        format_callback_to_string(after_stop_callback), exc,
-                        exc_info=True)
+                    log.info(
+                        'Exception raised when running %s: %s',
+                        format_callback_to_string(after_stop_callback),
+                        exc,
+                        exc_info=True,
+                    )
             yield self
         except ShellUtilsException:
             raise
@@ -876,21 +1000,26 @@ class Daemon(ScriptSubprocess):
                 try:
                     before_start_callback(self)
                 except CallbackException as exc:
-                    log.info('Exception raised when running %s: %s',
+                    log.info(
+                        'Exception raised when running %s: %s',
                         format_callback_to_string(before_start_callback),
-                        exc, exc_info=True)
-            _started = self.started(*start_arguments.args, **
-                start_arguments.kwargs)
+                        exc,
+                        exc_info=True,
+                    )
+            _started = self.started(*start_arguments.args, **start_arguments.kwargs)
             if _started:
                 if after_start_callback:
                     try:
                         after_start_callback(self)
                     except CallbackException as exc:
-                        log.info('Exception raised when running %s: %s',
+                        log.info(
+                            'Exception raised when running %s: %s',
                             format_callback_to_string(after_start_callback),
-                            exc, exc_info=True)
+                            exc,
+                            exc_info=True,
+                        )
 
-    def run_start_checks(self, started_at: float, timeout_at: float) ->bool:
+    def run_start_checks(self, started_at: float, timeout_at: float) -> bool:
         """
         Run checks to confirm that the daemon has started.
         """
@@ -899,8 +1028,9 @@ class Daemon(ScriptSubprocess):
         if not check_ports:
             log.debug('No ports to check connection to for %s', self)
             return True
-        log.debug('Listening ports to check for %s: %s', self, set(self.
-            get_check_ports()))
+        log.debug(
+            'Listening ports to check for %s: %s', self, set(self.get_check_ports())
+        )
         checks_start_time = time.time()
         while time.time() <= timeout_at:
             if not self.is_running():
@@ -912,24 +1042,28 @@ class Daemon(ScriptSubprocess):
                 time.sleep(1.5)
         else:
             log.error(
-                'Failed to check ports after %1.2f seconds for %s. Remaining ports to check: %s'
-                , time.time() - checks_start_time, self, check_ports)
+                'Failed to check ports after %1.2f seconds for %s. Remaining ports to check: %s',
+                time.time() - checks_start_time,
+                self,
+                check_ports,
+            )
             return False
-        log.debug('All listening ports checked for %s: %s', self, set(self.
-            get_check_ports()))
+        log.debug(
+            'All listening ports checked for %s: %s', self, set(self.get_check_ports())
+        )
         return True
 
-    def _add_factory_to_stats_processes(self) ->None:
+    def _add_factory_to_stats_processes(self) -> None:
         if self.stats_processes is not None:
             display_name = self.get_display_name()
             self.stats_processes.add(display_name, self.pid)
 
-    def _remove_factory_from_stats_processes(self) ->None:
+    def _remove_factory_from_stats_processes(self) -> None:
         if self.stats_processes is not None:
             display_name = self.get_display_name()
             self.stats_processes.remove(display_name)
 
-    def _terminate_processes_matching_listen_ports(self) ->None:
+    def _terminate_processes_matching_listen_ports(self) -> None:
         if not self.listen_ports:
             return
         found_processes = []
@@ -947,13 +1081,16 @@ class Daemon(ScriptSubprocess):
             log.debug(
                 'The following processes were found listening on ports %s: %s',
                 ', '.join([str(port) for port in self.listen_ports]),
-                found_processes)
+                found_processes,
+            )
             terminate_process_list(found_processes, kill=True, slow_stop=False)
         else:
-            log.debug('No astray processes were found listening on ports: %s',
-                ', '.join([str(port) for port in self.listen_ports]))
+            log.debug(
+                'No astray processes were found listening on ports: %s',
+                ', '.join([str(port) for port in self.listen_ports]),
+            )
 
-    def __enter__(self) ->'Daemon':
+    def __enter__(self) -> 'Daemon':
         """
         Use class as a context manager.
         """
@@ -962,11 +1099,13 @@ class Daemon(ScriptSubprocess):
                 """Factory not yet started. Perhaps you're after something like:
 
 with {}.started() as factory:
-    yield factory"""
-                .format(self.__class__.__name__))
+    yield factory""".format(
+                    self.__class__.__name__
+                )
+            )
         return self
 
-    def __exit__(self, *_: Any) ->None:
+    def __exit__(self, *_: Any) -> None:
         """
         Exit the class context manager.
         """
