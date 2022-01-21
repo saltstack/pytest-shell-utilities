@@ -18,9 +18,14 @@ UNRELEASED
 ==========
 
 * When passed a string, cast it to ``pathlib.Path`` before ``.resolve()``ing it
+* Extract ``BaseFactory`` from ``Factory``. It's required on `pytest-salt-factories`_ container
+  implementation.
 
 
 shell-utilities 1.0.0rc1 (2022-01-21)
 =====================================
 
 Pre-release of the first working version of the pytest plugin.
+
+
+.. _pytest-salt-factories: https://github.com/saltstack/pytest-salt-factories

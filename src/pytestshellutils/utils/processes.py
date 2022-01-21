@@ -38,8 +38,8 @@ class ProcessResult:
         The ``stderr`` returned by the process
     :keyword list,tuple cmdline:
         The command line used to start the process
-    :keyword list,tuple cmdline:
-        The command line used to start the process
+    :keyword dict data:
+        The data returned by parsing ``stdout``, when possible.
     :keyword str data_key:
         When ``stdout`` can be parsed as JSON, sometimes there's a top level key which is not
         that interesting. By using ``data_key``, we define that we're actually only interested

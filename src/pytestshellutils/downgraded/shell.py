@@ -50,6 +50,35 @@ log = logging.getLogger(__name__)
 
 
 @attr.s(slots=True, kw_only=True)
+class BaseFactory:
+    """
+    Base factory class.
+
+    :keyword pathlib.Path cwd:
+        The path to the desired working directory
+    :keyword dict environ:
+        A dictionary of ``key``, ``value`` pairs to add to the environment.
+    """
+
+    cwd = attr.ib(converter=resolved_pathlib_path)
+    environ = attr.ib(repr=False)
+
+    @cwd.default
+    def _default_cwd(self) -> pathlib.Path:
+        """
+        Return the default cwd to use.
+        """
+        return pathlib.Path.cwd()
+
+    @environ.default
+    def _default_environ(self) -> EnvironDict:
+        """
+        Return the default ``os.environ`` to use.
+        """
+        return cast(EnvironDict, os.environ.copy())
+
+
+@attr.s(slots=True, kw_only=True)
 class SubprocessImpl:
     """
     Subprocess interaction implementation.
@@ -250,7 +279,7 @@ class SubprocessImpl:
 
 
 @attr.s(slots=True, kw_only=True)
-class Factory:
+class Factory(BaseFactory):
     """
     Base shell factory class.
 
@@ -279,20 +308,6 @@ class Factory:
     timeout = attr.ib()
     impl = attr.ib(repr=False, init=False)
     _cmdline = attr.ib(repr=False, init=False, default=None)
-
-    @cwd.default
-    def _default_cwd(self) -> pathlib.Path:
-        """
-        Return the default cwd to use.
-        """
-        return pathlib.Path.cwd()
-
-    @environ.default
-    def _default_environ(self) -> EnvironDict:
-        """
-        Return the default ``os.environ`` to use.
-        """
-        return cast(EnvironDict, os.environ.copy())
 
     @system_encoding.default
     def _default_system_encoding(self) -> str:
