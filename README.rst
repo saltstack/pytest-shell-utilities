@@ -68,15 +68,34 @@ And, that's honestly it.
 Usage
 =====
 
-Once installed, you can now skip some tests with some simple pytest markers, for example.
+Once installed, you can now use the ``shell`` fixture to run some commands and assert against the
+outcome.
 
 .. code-block:: python
 
-   import pytest
+   def test_assert_good_exitcode(shell):
 
-   @pytest.mark.skip_unless_on_linux
-   def test_on_linux():
-       assert True
+       ret = shell.run("exit", "0")
+       assert ret.returncode == 0
+
+   def test_assert_bad_exitcode(shell):
+
+       ret = shell.run("exit", "1")
+       assert ret.returncode == 1
+
+
+
+If the command outputs parseable JSON, the ``shell`` fixture can attempt loading that output as
+JSON which allows for asserting against the JSON loaded object.
+
+
+.. code-block:: python
+
+   def test_against_json_output(shell):
+      d = {"a", "a", "b": "b"}
+      ret = shell.run("echo", json.dumps(d))
+      assert ret.data == d
+
 
 ..
    include-ends-here
