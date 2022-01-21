@@ -102,7 +102,7 @@ def warn_until(
 
     if stacklevel is None:
         # Attribute the warning to the calling function, not to warn_until()
-        stacklevel = 2
+        stacklevel = 3
 
     if _pkg_version >= _version:
         caller = inspect.getframeinfo(sys._getframe(stacklevel - 1))

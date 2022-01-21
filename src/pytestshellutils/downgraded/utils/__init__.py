@@ -99,7 +99,7 @@ def warn_until(
         _pkg_version_ = pytestshellutils.__version__
     _pkg_version = packaging.version.parse(_pkg_version_)
     if stacklevel is None:
-        stacklevel = 2
+        stacklevel = 3
     if _pkg_version >= _version:
         caller = inspect.getframeinfo(sys._getframe(stacklevel - 1))
         raise RuntimeError(
