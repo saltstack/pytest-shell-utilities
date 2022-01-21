@@ -98,7 +98,7 @@ class ProcessResult:
         return self.returncode
 
     @property
-    def json(self) -> int:
+    def json(self) -> Optional[Dict[Any, Any]]:
         """
         Return the process output parsed as JSON, if possible.
 
@@ -108,10 +108,10 @@ class ProcessResult:
         """
         warn_until(
             "2.0.0",
-            "The '.exitcode' property is deprecated and will cease to exist after {version}. "
+            "The '.json' property is deprecated and will cease to exist after {version}. "
             "Please use '.returncode' instead.",
         )
-        return self.returncode
+        return self.data
 
     def __str__(self) -> str:
         """

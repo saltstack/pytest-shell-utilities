@@ -19,6 +19,7 @@ UNRELEASED
 * ``cwd`` and ``environ`` are now defined on ``BaseFactory``
 * Add ``py.typed`` to state that the package is fully typed
 * Fix the ``stacklevel`` value to point to the actual caller of the ``warn_until`` function.
+* Fix the deprecated ``ProcessResult.json`` property.
 
 
 shell-utilities 1.0.0rc2 (2022-01-21)
