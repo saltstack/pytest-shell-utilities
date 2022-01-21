@@ -14,6 +14,12 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 .. towncrier release notes start
 
 
+UNRELEASED
+==========
+
+* When passed a string, cast it to ``pathlib.Path`` before ``.resolve()``ing it
+
+
 shell-utilities 1.0.0rc1 (2022-01-21)
 =====================================
 

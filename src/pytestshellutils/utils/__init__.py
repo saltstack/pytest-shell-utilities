@@ -22,10 +22,12 @@ if TYPE_CHECKING:
     from packaging.version import Version
 
 
-def resolved_pathlib_path(path: pathlib.Path) -> pathlib.Path:
+def resolved_pathlib_path(path: Union[str, pathlib.Path]) -> pathlib.Path:
     """
     Return a resolved ``pathlib.Path``.
     """
+    if isinstance(path, str):
+        path = pathlib.Path(path)
     return path.resolve()
 
 
