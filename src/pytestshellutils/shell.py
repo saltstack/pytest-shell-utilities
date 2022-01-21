@@ -313,10 +313,6 @@ class Factory(BaseFactory):
     """
     Base shell factory class.
 
-    :keyword pathlib.Path cwd:
-        The path to the desired working directory
-    :keyword dict environ:
-        A dictionary of ``key``, ``value`` pairs to add to the environment.
     :keyword bool slow_stop:
         Whether to terminate the processes by sending a :py:attr:`SIGTERM` signal or by calling
         :py:meth:`~subprocess.Popen.terminate` on the sub-process.
@@ -331,8 +327,6 @@ class Factory(BaseFactory):
         of ``_timeout`` instead of ``self.timeout``.
     """
 
-    cwd: pathlib.Path = attr.ib(converter=resolved_pathlib_path)
-    environ: EnvironDict = attr.ib(repr=False)
     slow_stop: bool = attr.ib(default=True)
     system_encoding: str = attr.ib(repr=False)
     timeout: Union[int, float] = attr.ib()

@@ -13,6 +13,11 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+UNRELEASED
+==========
+
+* ``cwd`` and ``environ`` are now defined on ``BaseFactory``
+
 
 shell-utilities 1.0.0rc2 (2022-01-21)
 =====================================
