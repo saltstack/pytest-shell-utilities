@@ -13,8 +13,9 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
-UNRELEASED
-==========
+
+shell-utilities 1.0.0rc3 (2022-01-21)
+=====================================
 
 * ``cwd`` and ``environ`` are now defined on ``BaseFactory``
 * Add ``py.typed`` to state that the package is fully typed
