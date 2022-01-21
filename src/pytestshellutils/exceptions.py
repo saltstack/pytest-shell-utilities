@@ -41,6 +41,8 @@ class ProcessFailed(ShellUtilsException):
         """
         message = self.message
         if self.process_result:
+            if not message.endswith("\n"):
+                message += "\n"
             message += str(self.process_result)
         return message
 
