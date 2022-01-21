@@ -14,8 +14,8 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 .. towncrier release notes start
 
 
-UNRELEASED
-==========
+shell-utilities 1.0.0rc2 (2022-01-21)
+=====================================
 
 * When passed a string, cast it to ``pathlib.Path`` before ``.resolve()``ing it
 * Extract ``BaseFactory`` from ``Factory``. It's required on `pytest-salt-factories`_ container
