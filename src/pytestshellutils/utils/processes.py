@@ -88,7 +88,23 @@ class ProcessResult:
 
         This property is deprecated and should not be used.
         It only exists to support projects that are migrating from
-        pytest-salt-factories versions.
+        pytest-salt-factories versions. Use ``.returncode`` instead.
+        """
+        warn_until(
+            "2.0.0",
+            "The '.exitcode' property is deprecated and will cease to exist after {version}. "
+            "Please use '.returncode' instead.",
+        )
+        return self.returncode
+
+    @property
+    def json(self) -> int:
+        """
+        Return the process output parsed as JSON, if possible.
+
+        This property is deprecated and should not be used.
+        It only exists to support projects that are migrating from
+        pytest-salt-factories versions. Use ``.data`` instead.
         """
         warn_until(
             "2.0.0",
