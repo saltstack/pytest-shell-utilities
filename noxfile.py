@@ -407,7 +407,7 @@ def changelog(session, draft):
         silent=True,
         log=False,
         stderr=None,
-    )
+    ).strip()
 
     town_cmd = ["towncrier", "build", "--version={}".format(version)]
     if draft:
