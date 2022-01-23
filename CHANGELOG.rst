@@ -14,6 +14,14 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 .. towncrier release notes start
 
 
+UNRELEASED
+==========
+
+* ``ProcessResult.stdout`` and ``ProcessResult.stderr`` are now instances of
+  ``pytestshellutils.utils.processes.MatchString`` which provides a ``.matcher``
+  attribute that returns an instance of ``pytest.LineMatcher``.
+
+
 shell-utilities 1.0.0rc3 (2022-01-21)
 =====================================
 

@@ -16,10 +16,27 @@ from typing import Optional
 
 import attr
 import psutil
+from _pytest.pytester import LineMatcher
 
 from pytestshellutils.utils import warn_until
 
+
 log = logging.getLogger(__name__)
+
+
+class MatchString(str):
+    """
+    Simple subclass around ``str`` which provides a ``.matcher`` property.
+
+    This ``.matcher`` property is an instance of :py:class:`~_pytest.pytester.LineMatcher`
+    """
+
+    @property
+    def matcher(self) -> LineMatcher:
+        """
+        Return an instance of :py:class:`~_pytest.pytester.LineMatcher`.
+        """
+        return LineMatcher(self.splitlines())
 
 
 @attr.s(frozen=True, kw_only=True)
@@ -51,8 +68,8 @@ class ProcessResult:
     """
 
     returncode: int = attr.ib()
-    stdout: str = attr.ib()
-    stderr: str = attr.ib()
+    stdout: str = attr.ib(converter=MatchString)
+    stderr: str = attr.ib(converter=MatchString)
     cmdline: Optional[List[str]] = attr.ib(default=None)
     data_key: Optional[str] = attr.ib(default=None)
     data: Optional[Dict[Any, Any]] = attr.ib()
