@@ -14,8 +14,8 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 .. towncrier release notes start
 
 
-UNRELEASED
-==========
+shell-utilities 1.0.0rc4 (2022-01-23)
+=====================================
 
 * ``ProcessResult.stdout`` and ``ProcessResult.stderr`` are now instances of
   ``pytestshellutils.utils.processes.MatchString`` which provides a ``.matcher``
