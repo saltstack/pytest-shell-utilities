@@ -34,7 +34,7 @@ shell-utilities 1.0.0rc3 (2022-01-21)
 shell-utilities 1.0.0rc2 (2022-01-21)
 =====================================
 
-* When passed a string, cast it to ``pathlib.Path`` before ``.resolve()``ing it
+* When passed a string, cast it to ``pathlib.Path`` before calling ``.resolve()``
 * Extract ``BaseFactory`` from ``Factory``. It's required on `pytest-salt-factories`_ container
   implementation.
 
