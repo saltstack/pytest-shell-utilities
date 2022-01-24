@@ -32,7 +32,7 @@ def check_changelog_entries(files):
         # Is it under changelog/
         try:
             path.relative_to(CHANGELOG_ENTRIES_PATH)
-            if path.name in (".gitignore", "_template.rst", __name__):
+            if path.name in (".gitkeep", ".gitignore", "_template.rst", __name__):
                 # These files should be ignored
                 continue
             # Is it named properly
