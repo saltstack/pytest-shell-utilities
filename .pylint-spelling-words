@@ -45,6 +45,7 @@ lru
 lsof
 macos
 mbcs
+mtime
 mypy
 namespace
 netbsd
@@ -71,6 +72,7 @@ ret
 returncode
 rst
 rtype
+sdist
 shellresult
 sid
 sids
