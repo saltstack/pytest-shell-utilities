@@ -1,3 +1,0 @@
-Provide a way to create reproducible distribution packages.
-
-* Stop customizing the ``towncrier`` template.

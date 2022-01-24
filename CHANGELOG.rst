@@ -13,6 +13,16 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.0rc5 (2022-01-24)
+=====================================
+
+Trivial/Internal Changes
+------------------------
+
+- Provide a way to create reproducible distribution packages.
+
+  * Stop customizing the ``towncrier`` template. (`#1 <https://github.com/saltstack/pytest-shell-utilities/issues/1>`_)
+
 
 shell-utilities 1.0.0rc4 (2022-01-23)
 =====================================
