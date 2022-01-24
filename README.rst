@@ -1,4 +1,4 @@
-.. image:: https://img.shields.io/github/workflow/status/saltstack/pytest-shell-utilities/Testing?style=plastic
+.. image:: https://img.shields.io/github/workflow/status/saltstack/pytest-shell-utilities/CI/main?style=plastic
    :target: https://github.com/saltstack/pytest-shell-utilities/actions/workflows/testing.yml
    :alt: CI
 
