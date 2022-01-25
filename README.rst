@@ -123,7 +123,7 @@ Additionally, the return object's ``.stdout`` and ``.stderr`` can be line matche
        )
 
 
-.. pytest.pytester.LineMatcher:: https://docs.pytest.org/en/stable/reference.html#pytest.pytester.LineMatcher
+.. _pytest.pytester.LineMatcher: https://docs.pytest.org/en/stable/reference.html#pytest.pytester.LineMatcher
 
 ..
    include-ends-here

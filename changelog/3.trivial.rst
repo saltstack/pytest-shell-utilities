@@ -1,3 +1,4 @@
 Improvements before final RC
 
 * Add ``ProcessResult.std{out,err}.matcher`` example
+* Also generate reproducible packages when uploading a release to pypi
