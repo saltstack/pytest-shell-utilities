@@ -1,0 +1,3 @@
+Improvements before final RC
+
+* Add ``ProcessResult.std{out,err}.matcher`` example
