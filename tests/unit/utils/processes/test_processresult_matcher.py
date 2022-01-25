@@ -25,6 +25,12 @@ def test_instance_types():
     ret = ProcessResult(returncode=0, stdout="STDOUT", stderr="STDERR")
     assert isinstance(ret.stdout, str)
     assert isinstance(ret.stderr, str)
+    ret = ProcessResult(returncode=0, stdout=None, stderr=None)
+    assert ret.stdout is None
+    assert ret.stderr is None
+    ret = ProcessResult(returncode=0, stdout=1, stderr=2, data=None)
+    assert ret.stdout == 1
+    assert ret.stderr == 2
 
 
 def test_matcher_attribute(process_result):
