@@ -13,6 +13,12 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.0 (2022-01-25)
+==================================
+
+No significant changes.
+
+
 shell-utilities 1.0.0rc7 (2022-01-25)
 =====================================
 
