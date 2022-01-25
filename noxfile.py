@@ -383,14 +383,7 @@ def twine_check(session):
     """
     Run ``twine-check`` against the source distribution package.
     """
-    session.install("--progress-bar=off", "twine", silent=PIP_INSTALL_SILENT)
-    session.run(
-        "python",
-        "setup.py",
-        "sdist",
-        silent=True,
-        log=False,
-    )
+    build(session)
     session.run("twine", "check", "dist/*")
 
 
@@ -562,4 +555,4 @@ def build(session):
     if sha256sum:
         packages = [str(pkg.relative_to(REPO_ROOT)) for pkg in REPO_ROOT.joinpath("dist").iterdir()]
         session.run("sha256sum", *packages, external=True)
-    session.run("python", "-m", "twine", "check", str(REPO_ROOT.joinpath("dist/*")))
+    session.run("python", "-m", "twine", "check", "dist/*")
