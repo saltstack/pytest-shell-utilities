@@ -13,6 +13,19 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.0rc7 (2022-01-25)
+=====================================
+
+Trivial/Internal Changes
+------------------------
+
+- Improvements before final RC
+
+  * Add ``ProcessResult.std{out,err}.matcher`` example
+  * Also generate reproducible packages when uploading a release to pypi
+  * The ``twine-check`` nox target now call's the ``build`` target (`#3 <https://github.com/saltstack/pytest-shell-utilities/issues/3>`_)
+
+
 shell-utilities 1.0.0rc6 (2022-01-24)
 =====================================
 
