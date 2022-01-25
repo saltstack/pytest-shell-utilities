@@ -112,7 +112,7 @@ repos:
     hooks:
       - id: blacken-docs
         args: [--skip-errors]
-        files: ^(docs/.*\.rst|src/pytestshellutils/.*\.py)$
+        files: ^(.*\.rst|docs/.*\.rst|src/pytestshellutils/.*\.py)$
         exclude: ^src/pytestshellutils/downgraded/.*$
         additional_dependencies: [black==21.10b0]
   # <---- Formatting -------------------------------------------------------------------------------------------------

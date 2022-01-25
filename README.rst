@@ -78,6 +78,7 @@ outcome.
        ret = shell.run("exit", "0")
        assert ret.returncode == 0
 
+
    def test_assert_bad_exitcode(shell):
 
        ret = shell.run("exit", "1")
@@ -92,10 +93,37 @@ JSON which allows for asserting against the JSON loaded object.
 .. code-block:: python
 
    def test_against_json_output(shell):
-      d = {"a", "a", "b": "b"}
-      ret = shell.run("echo", json.dumps(d))
-      assert ret.data == d
+       d = {"a": "a", "b": "b"}
+       ret = shell.run("echo", json.dumps(d))
+       assert ret.data == d
 
+
+Additionally, the return object's ``.stdout`` and ``.stderr`` can be line matched using
+`pytest.pytester.LineMatcher`_:
+
+.. code-block:: python
+
+   MARY_HAD_A_LITTLE_LAMB = """\
+   Mary had a little lamb,
+   Its fleece was white as snow;
+   And everywhere that Mary went
+   The lamb was sure to go.
+   """
+
+
+   def test_matcher_attribute(shell):
+       ret = shell.run("echo", MARY_HAD_A_LITTLE_LAMB)
+       ret.stdout.matcher.fnmatch_lines_random(
+           [
+               "*had a little*",
+               "Its fleece was white*",
+               "*Mary went",
+               "The lamb was sure to go.",
+           ]
+       )
+
+
+.. pytest.pytester.LineMatcher:: https://docs.pytest.org/en/stable/reference.html#pytest.pytester.LineMatcher
 
 ..
    include-ends-here
