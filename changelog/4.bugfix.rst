@@ -1,1 +1,0 @@
-Stop casting ``None`` to a string for ``ProcessResult.std{out,err}``

@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.1 (2022-01-25)
+==================================
+
+Bug Fixes
+---------
+
+- Stop casting ``None`` to a string for ``ProcessResult.std{out,err}`` (`#4 <https://github.com/saltstack/pytest-shell-utilities/issues/4>`_)
+
+
 shell-utilities 1.0.0 (2022-01-25)
 ==================================
 
