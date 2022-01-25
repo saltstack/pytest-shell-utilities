@@ -37,6 +37,15 @@ class MatchString(str):
         return LineMatcher(self.splitlines())
 
 
+def convert_string_to_match_string(value: Optional[str]) -> Optional[MatchString]:
+    """
+    Convert strings into ``MatchString`` instances.
+    """
+    if isinstance(value, str):
+        return MatchString(value)
+    return value
+
+
 @attr.s(frozen=True, kw_only=True)
 class ProcessResult:
     """
@@ -66,8 +75,8 @@ class ProcessResult:
     """
 
     returncode = attr.ib()
-    stdout = attr.ib(converter=MatchString)
-    stderr = attr.ib(converter=MatchString)
+    stdout = attr.ib(converter=convert_string_to_match_string)
+    stderr = attr.ib(converter=convert_string_to_match_string)
     cmdline = attr.ib(default=None)
     data_key = attr.ib(default=None)
     data = attr.ib()
