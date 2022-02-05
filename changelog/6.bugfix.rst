@@ -1,1 +1,0 @@
-Set lower required python to `3.5.2` and avoid issues with `flake8-typing-imports`.

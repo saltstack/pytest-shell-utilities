@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.2 (2022-02-05)
+==================================
+
+Bug Fixes
+---------
+
+- Set lower required python to `3.5.2` and avoid issues with `flake8-typing-imports`. (`#6 <https://github.com/saltstack/pytest-shell-utilities/issues/6>`_)
+
+
 shell-utilities 1.0.1 (2022-01-25)
 ==================================
 
