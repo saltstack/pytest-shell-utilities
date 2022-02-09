@@ -1112,6 +1112,8 @@ class Daemon(ScriptSubprocess):
             except psutil.AccessDenied:  # pragma: no cover
                 # We've been denied access to this process connections. Carry on.
                 continue
+            except psutil.ZombieProcess:
+                continue
         if found_processes:
             log.debug(
                 "The following processes were found listening on ports %s: %s",

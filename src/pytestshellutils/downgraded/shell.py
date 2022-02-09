@@ -1086,6 +1086,8 @@ class Daemon(ScriptSubprocess):
                         break
             except psutil.AccessDenied:
                 continue
+            except psutil.ZombieProcess:
+                continue
         if found_processes:
             log.debug(
                 'The following processes were found listening on ports %s: %s',
