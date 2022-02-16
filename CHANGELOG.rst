@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.3 (2022-02-16)
+==================================
+
+Bug Fixes
+---------
+
+- Fixed issue with ``sdist`` recompression for reproducible packages not iterating though subdirectories contents. (`#7 <https://github.com/saltstack/pytest-shell-utilities/issues/7>`_)
+
+
 shell-utilities 1.0.2 (2022-02-05)
 ==================================
 
