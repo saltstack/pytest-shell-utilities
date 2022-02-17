@@ -148,11 +148,11 @@ class ProcessResult:
             message += f"\n Command Line: {self.cmdline}"
         if self.returncode is not None:
             message += f"\n Returncode: {self.returncode}"
-        if self.stdout.strip() or self.stderr.strip():
+        if (self.stdout and self.stdout.strip()) or (self.stderr and self.stderr.strip()):
             message += "\n Process Output:"
-        if self.stdout.strip():
+        if self.stdout and self.stdout.strip():
             message += f"\n   >>>>> STDOUT >>>>>\n{self.stdout}\n   <<<<< STDOUT <<<<<"
-        if self.stderr.strip():
+        if self.stderr and self.stderr.strip():
             message += f"\n   >>>>> STDERR >>>>>\n{self.stderr}\n   <<<<< STDERR <<<<<"
         if self.data:
             message += "\n Parsed JSON Data:\n"
