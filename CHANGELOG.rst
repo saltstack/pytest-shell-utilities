@@ -13,6 +13,21 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.4 (2022-02-17)
+==================================
+
+Improvements
+------------
+
+- State from which library the ``DeprecationWarning`` is coming from. (`#9 <https://github.com/saltstack/pytest-shell-utilities/issues/9>`_)
+
+
+Bug Fixes
+---------
+
+- Handle ``None`` values for ``.stdout`` and ``.stderr`` on ``ProcessResult.__str__()`` (`#8 <https://github.com/saltstack/pytest-shell-utilities/issues/8>`_)
+
+
 shell-utilities 1.0.3 (2022-02-16)
 ==================================
 
