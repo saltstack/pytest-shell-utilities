@@ -146,13 +146,13 @@ class ProcessResult:
             message += '\n Command Line: {0}'.format(self.cmdline)
         if self.returncode is not None:
             message += '\n Returncode: {0}'.format(self.returncode)
-        if self.stdout.strip() or self.stderr.strip():
+        if self.stdout and self.stdout.strip() or self.stderr and self.stderr.strip():
             message += '\n Process Output:'
-        if self.stdout.strip():
+        if self.stdout and self.stdout.strip():
             message += '\n   >>>>> STDOUT >>>>>\n{0}\n   <<<<< STDOUT <<<<<'.format(
                 self.stdout
             )
-        if self.stderr.strip():
+        if self.stderr and self.stderr.strip():
             message += '\n   >>>>> STDERR >>>>>\n{0}\n   <<<<< STDERR <<<<<'.format(
                 self.stderr
             )
