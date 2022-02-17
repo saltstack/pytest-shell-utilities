@@ -118,7 +118,7 @@ class ProcessResult:
         """
         warn_until(
             '2.0.0',
-            "The '.exitcode' property is deprecated and will cease to exist after {version}. Please use '.returncode' instead.",
+            "The '.exitcode' property is deprecated and will cease to exist after pytest-shell-utilities {version}. Please use '.returncode' instead.",
         )
         return self.returncode
 
@@ -133,7 +133,7 @@ class ProcessResult:
         """
         warn_until(
             '2.0.0',
-            "The '.json' property is deprecated and will cease to exist after {version}. Please use '.returncode' instead.",
+            "The '.json' property is deprecated and will cease to exist after pytest-shell-utilities {version}. Please use '.returncode' instead.",
         )
         return self.data
 
