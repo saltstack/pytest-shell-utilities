@@ -624,7 +624,9 @@ class DaemonImpl(SubprocessImpl):
     _after_start_callbacks: List[Callback] = attr.ib(repr=False, hash=False, factory=list)
     _before_terminate_callbacks: List[Callback] = attr.ib(repr=False, hash=False, factory=list)
     _after_terminate_callbacks: List[Callback] = attr.ib(repr=False, hash=False, factory=list)
-    _start_args_and_kwargs: StartDaemonCallArguments = attr.ib(init=False, repr=False, hash=False)
+    _start_args_and_kwargs: StartDaemonCallArguments = attr.ib(
+        init=False, repr=False, hash=False, default=None
+    )
 
     def before_start(self, callback: Callable[[], None], *args: Any, **kwargs: Any) -> None:
         """
