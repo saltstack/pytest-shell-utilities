@@ -1,1 +1,0 @@
-Fix deprecation message telling to use the wrong property.

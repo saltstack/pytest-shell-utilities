@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.0.5 (2022-02-21)
+==================================
+
+Bug Fixes
+---------
+
+- Fix deprecation message telling to use the wrong property. (`#12 <https://github.com/saltstack/pytest-shell-utilities/issues/12>`_)
+
+
 shell-utilities 1.0.4 (2022-02-17)
 ==================================
 
