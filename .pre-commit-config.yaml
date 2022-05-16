@@ -2,7 +2,7 @@
 minimum_pre_commit_version: 2.9.2
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.1.0
+    rev: v4.2.0
     hooks:
       - id: check-merge-conflict  # Check for files that contain merge conflict strings.
       - id: trailing-whitespace
@@ -60,7 +60,7 @@ repos:
       - id: remove-import-headers
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.31.0
+    rev: v2.32.1
     hooks:
       - id: pyupgrade
         name: Rewrite Code to be Py3.5+
@@ -71,7 +71,7 @@ repos:
         exclude: ^src/pytestshellutils/(version.py|downgraded/.*)$
 
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v2.6.0
+    rev: v3.1.0
     hooks:
       - id: reorder-python-imports
         args:
@@ -80,25 +80,25 @@ repos:
         exclude: ^src/pytestshellutils/(version.py|downgraded/.*)$
 
   - repo: https://github.com/psf/black
-    rev: 21.12b0
+    rev: 22.3.0
     hooks:
       - id: black
         args: [-l 100]
         exclude: ^src/pytestshellutils/(version.py|downgraded/.*)$
 
   - repo: https://github.com/asottile/blacken-docs
-    rev: v1.12.0
+    rev: v1.12.1
     hooks:
       - id: blacken-docs
         args: [--skip-errors]
         files: ^(.*\.rst|docs/.*\.rst|src/pytestshellutils/.*\.py)$
         exclude: ^src/pytestshellutils/downgraded/.*$
-        additional_dependencies: [black==21.10b0]
+        additional_dependencies: [black==22.3.0]
   # <---- Formatting -------------------------------------------------------------------------------------------------
 
   # ----- Security -------------------------------------------------------------------------------------------------->
   - repo: https://github.com/PyCQA/bandit
-    rev: "1.7.1"
+    rev: "1.7.4"
     hooks:
       - id: bandit
         alias: bandit-salt
@@ -107,7 +107,7 @@ repos:
         files: ^(?!tests/).*\.py$
         exclude: src/pytestshellutils/version.py
   - repo: https://github.com/PyCQA/bandit
-    rev: "1.7.1"
+    rev: "1.7.4"
     hooks:
       - id: bandit
         alias: bandit-tests
@@ -128,7 +128,7 @@ repos:
         - flake8-typing-imports
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.931
+    rev: v0.950
     hooks:
       - id: mypy
         name: Run mypy against source
@@ -142,7 +142,7 @@ repos:
           - pydantic
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.931
+    rev: v0.950
     hooks:
       - id: mypy
         name: Run mypy against tests
