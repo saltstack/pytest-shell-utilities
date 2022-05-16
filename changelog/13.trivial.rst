@@ -1,1 +1,0 @@
-Update pre-commit hooks and test against PyTest 7.0.x and 7.1.x.

@@ -13,6 +13,21 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.1.0 (2022-05-16)
+==================================
+
+Improvements
+------------
+
+- Skip test when the GLIBC race conditions are met, instead of failing (`#13 <https://github.com/saltstack/pytest-shell-utilities/issues/13>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Update pre-commit hooks and test against PyTest 7.0.x and 7.1.x. (`#13 <https://github.com/saltstack/pytest-shell-utilities/issues/13>`_)
+
+
 shell-utilities 1.0.5 (2022-02-21)
 ==================================
 
