@@ -13,7 +13,6 @@ import pathlib
 import shutil
 import subprocess
 import sys
-from functools import lru_cache
 from tempfile import SpooledTemporaryFile
 from typing import Any
 from typing import Callable
@@ -26,10 +25,8 @@ from typing import Tuple
 from typing import TYPE_CHECKING
 from typing import Union
 
-import _pytest._version
 import attr
 import psutil
-import pytest
 from pytestskipmarkers.utils import platform
 
 from pytestshellutils.customtypes import Callback
@@ -51,37 +48,7 @@ if TYPE_CHECKING:
     from typing import Type
     from pytestsysstats.plugin import StatsProcesses
 
-PYTEST_GE_7 = getattr(_pytest._version, "version_tuple", (-1, -1)) >= (7, 0)
-
 log = logging.getLogger(__name__)
-
-
-@lru_cache(maxsize=1, typed=False)
-def glibc_prone_to_race_condition() -> bool:
-    """
-    Check if the GLIBC version is prone to race conditions.
-
-    This should be fixed after version 2.34 of GLIBC
-
-    See:
-        https://sourceware.org/bugzilla/show_bug.cgi?id=19329
-    """
-    ret = subprocess.run(
-        ["ldd", "--version"],
-        universal_newlines=True,
-        check=True,
-        shell=False,
-        stdout=subprocess.PIPE,
-    )
-    glibc_version: Tuple[int, ...] = tuple(
-        int(x) for x in ret.stdout.splitlines()[0].split()[-1].split(".") if x.isdigit()
-    )
-    if glibc_version >= (2, 34):
-        # After glibc 3.34, the race condition bug should have been fixed
-        # See:
-        #   https://sourceware.org/bugzilla/show_bug.cgi?id=19329
-        return False
-    return True
 
 
 @attr.s(slots=True, kw_only=True)
@@ -93,13 +60,10 @@ class BaseFactory:
         The path to the desired working directory
     :keyword dict environ:
         A dictionary of ``key``, ``value`` pairs to add to the environment.
-    :keyword bool skip_on_glibc_race_condition_hit:
-        Whether to skip test or not when the glibc race conditions are seen.
     """
 
     cwd: pathlib.Path = attr.ib(converter=resolved_pathlib_path)
     environ: EnvironDict = attr.ib(repr=False)
-    skip_on_glibc_race_condition_hit: bool = attr.ib(default=True)
 
     @cwd.default
     def _default_cwd(self) -> pathlib.Path:
@@ -317,20 +281,6 @@ class SubprocessImpl:
                 cmdline=cast(List[str], self._terminal.args),
             )
             log.info("%s %s", self.factory.__class__.__name__, self._terminal_result)
-            if self._terminal_result.returncode == 127 and glibc_prone_to_race_condition():
-                if (
-                    stderr
-                    and "Inconsistency detected by ld.so" in stderr
-                    and "_dl_allocate_tls_init" in stderr
-                ) and self.factory.skip_on_glibc_race_condition_hit:
-                    exc_kwargs = {}
-                    if PYTEST_GE_7:
-                        exc_kwargs["_use_item_location"] = True
-                    raise pytest.skip.Exception(
-                        "GLIBC race condition bug hit. "
-                        "See https://sourceware.org/bugzilla/show_bug.cgi?id=19329",
-                        **exc_kwargs,
-                    )
             return self._terminal_result
         finally:
             self._terminal = None
