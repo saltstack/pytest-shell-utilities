@@ -4,7 +4,6 @@
 import os
 import sys
 from typing import cast
-from unittest import mock
 
 import pytest
 
@@ -208,27 +207,3 @@ def test_display_name(tempfiles):
     result = shell.run(sys.executable, script)
     assert result.returncode == 0
     assert shell.get_display_name() == "Subprocess([{!r}, {!r}])".format(sys.executable, script)
-
-
-def test_glibc_race_condition_handling(tempfiles):
-    shell = Subprocess()
-    stderr = "Inconsistency detected by ld.so ... _dl_allocate_tls_init\n"
-    script = tempfiles.makepyfile(
-        """
-        # coding=utf-8
-        import sys
-        import time
-        print("{}", file=sys.stderr, flush=True)
-        time.sleep(0.1)
-        exit(127)
-        """.format(
-            stderr.strip()
-        )
-    )
-    with mock.patch("pytestshellutils.shell.glibc_prone_to_race_condition", return_value=False):
-        ret = shell.run(sys.executable, script)
-        assert ret.returncode == 127
-        assert ret.stderr == stderr
-    with mock.patch("pytestshellutils.shell.glibc_prone_to_race_condition", return_value=True):
-        with pytest.raises(pytest.skip.Exception):
-            shell.run(sys.executable, script)
