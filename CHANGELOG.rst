@@ -13,6 +13,30 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.2.0 (2022-05-20)
+==================================
+
+Improvements
+------------
+
+- Revert `"Skip test when the GLIBC race conditions are met, instead of failing." <https://github.com/saltstack/pytest-shell-utilities/commit/f79aba3c5c0c7e4bdd895ae422d2f35ed22ea2e6>`_
+
+  It wasn't the right fix/workaround. The right fix can be seen in `the Salt repo <https://github.com/saltstack/salt/pull/62078>`_ (`#16 <https://github.com/saltstack/pytest-shell-utilities/issues/16>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Remove the redundant `wheel` dependency from pyproject.toml.
+
+  The setuptools backend takes care of adding it automatically
+  via `setuptools.build_meta.get_requires_for_build_wheel()` since day
+  one.  The documentation has historically been wrong about listing it,
+  and it has been fixed since.
+
+  See https://github.com/pypa/setuptools/commit/f7d30a9529378cf69054b5176249e5457aaf640a (`#15 <https://github.com/saltstack/pytest-shell-utilities/issues/15>`_)
+
+
 shell-utilities 1.1.0 (2022-05-16)
 ==================================
 

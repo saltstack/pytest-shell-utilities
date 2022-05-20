@@ -1,3 +1,0 @@
-Revert `"Skip test when the GLIBC race conditions are met, instead of failing." <https://github.com/saltstack/pytest-shell-utilities/commit/f79aba3c5c0c7e4bdd895ae422d2f35ed22ea2e6>`_
-
-It wasn't the right fix/workaround. The right fix can be seen in `the Salt repo <https://github.com/saltstack/salt/pull/62078>`_

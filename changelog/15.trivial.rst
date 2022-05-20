@@ -1,8 +1,0 @@
-Remove the redundant `wheel` dependency from pyproject.toml.
-
-The setuptools backend takes care of adding it automatically
-via `setuptools.build_meta.get_requires_for_build_wheel()` since day
-one.  The documentation has historically been wrong about listing it,
-and it has been fixed since.
-
-See https://github.com/pypa/setuptools/commit/f7d30a9529378cf69054b5176249e5457aaf640a
