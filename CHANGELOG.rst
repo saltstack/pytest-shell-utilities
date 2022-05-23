@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.2.1 (2022-05-23)
+==================================
+
+Bug Fixes
+---------
+
+- Account for ``ProcessLookupError`` when terminating the underlying process. (`#18 <https://github.com/saltstack/pytest-shell-utilities/issues/18>`_)
+
+
 shell-utilities 1.2.0 (2022-05-20)
 ==================================
 
