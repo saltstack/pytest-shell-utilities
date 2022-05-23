@@ -194,13 +194,16 @@ class SubprocessImpl:
                 if child not in self._children:
                     self._children.append(child)
         with self._terminal:
-            if self.factory.slow_stop:
-                self._terminal.terminate()
-            else:
-                self._terminal.kill()
             try:
-                self._terminal.wait(10)
-            except subprocess.TimeoutExpired:
+                if self.factory.slow_stop:
+                    self._terminal.terminate()
+                else:
+                    self._terminal.kill()
+                try:
+                    self._terminal.wait(10)
+                except subprocess.TimeoutExpired:
+                    pass
+            except ProcessLookupError:
                 pass
             terminate_process(
                 pid=self._terminal.pid,
