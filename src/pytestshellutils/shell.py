@@ -212,16 +212,20 @@ class SubprocessImpl:
                     self._children.append(child)
 
         with self._terminal:
-            if self.factory.slow_stop:
-                self._terminal.terminate()
-            else:
-                self._terminal.kill()
             try:
-                # Allow the process to exit by itself in case slow_stop is True
-                self._terminal.wait(10)
-            except subprocess.TimeoutExpired:  # pragma: no cover
-                # The process failed to stop, no worries, we'll make sure it exit along with it's
-                # child processes bellow
+                if self.factory.slow_stop:
+                    self._terminal.terminate()
+                else:
+                    self._terminal.kill()
+                try:
+                    # Allow the process to exit by itself in case slow_stop is True
+                    self._terminal.wait(10)
+                except subprocess.TimeoutExpired:  # pragma: no cover
+                    # The process failed to stop, no worries, we'll make sure it exit along with it's
+                    # child processes bellow
+                    pass
+            except ProcessLookupError:
+                # The process is already gone
                 pass
             # Lets log and kill any child processes left behind, including the main subprocess
             # If it failed to properly stop
