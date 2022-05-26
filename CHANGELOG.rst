@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.4.0 (2022-05-26)
+==================================
+
+Improvements
+------------
+
+- ``Daemon.started()`` is now a context manager (`#22 <https://github.com/saltstack/pytest-shell-utilities/issues/22>`_)
+
+
 shell-utilities 1.3.0 (2022-05-26)
 ==================================
 
