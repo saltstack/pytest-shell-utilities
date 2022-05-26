@@ -860,6 +860,7 @@ class Daemon(ScriptSubprocess):
     max_start_attempts: int = attr.ib(repr=False, default=3)
     extra_cli_arguments_after_first_start_failure: List[str] = attr.ib(hash=False, factory=list)
     listen_ports: List[int] = attr.ib(init=False, repr=False, hash=False, factory=list)
+    _start_checks_callbacks: List[Callback] = attr.ib(repr=False, hash=False, factory=list)
 
     def _get_impl_class(self) -> "Type[DaemonImpl]":
         """
@@ -880,6 +881,7 @@ class Daemon(ScriptSubprocess):
         self.after_start(self._add_factory_to_stats_processes)
         self.after_terminate(self._terminate_processes_matching_listen_ports)
         self.after_terminate(self._remove_factory_from_stats_processes)
+        self.start_check(self._check_listening_ports)
 
     def before_start(self, callback: Callable[[], None], *args: Any, **kwargs: Any) -> None:
         """
@@ -933,11 +935,48 @@ class Daemon(ScriptSubprocess):
         """
         self.impl.after_terminate(callback, *args, **kwargs)
 
+    def start_check(self, callback: Callable[..., bool], *args: Any, **kwargs: Any) -> None:
+        """
+        Register a function to run after the daemon starts to confirm readiness for work.
+
+        The callback must accept as the first argument ``timeout_at`` which is a float.
+        The callback must stop trying to confirm running behavior once ``time.time() > timeout_at``.
+        The callback should return ``True`` to confirm that the daemon is ready for work.
+
+        For example:
+
+        .. code-block:: python
+
+            def check_running_state(timeout_at: float) -> bool
+                while time.time() <= timeout_at:
+                    # run some checks
+                    ...
+                    # if all is good
+                    break
+                else:
+                    return False
+                return True
+
+        :param ~collections.abc.Callable callback:
+            The function to call back
+        :keyword args:
+            The arguments to pass to the callback
+        :keyword kwargs:
+            The keyword arguments to pass to the callback
+        """
+        self._start_checks_callbacks.append(Callback(func=callback, args=args, kwargs=kwargs))
+
     def get_check_ports(self) -> List[int]:
         """
         Return a list of ports to check against to ensure the daemon is running.
         """
         return self.check_ports or []
+
+    def get_start_check_callbacks(self) -> List[Callback]:
+        """
+        Return a list of the start check callbacks.
+        """
+        return self._start_checks_callbacks or []
 
     def start(
         self,
@@ -1063,7 +1102,49 @@ class Daemon(ScriptSubprocess):
         """
         Run checks to confirm that the daemon has started.
         """
+        start_check_callbacks = list(self.get_start_check_callbacks())
+        if not start_check_callbacks:
+            log.debug("No start check callbacks to run for %s", self)
+            return True
+        checks_start_time = time.time()
         log.debug("%s is running start checks", self)
+        while time.time() <= timeout_at:
+            if not self.is_running():
+                raise FactoryNotStarted("{} is no longer running".format(self))
+            if not start_check_callbacks:
+                break
+            start_check = start_check_callbacks[0]
+            try:
+                ret = start_check(timeout_at)
+                if ret is True:
+                    start_check_callbacks.pop(0)
+            except Exception as exc:  # pylint: disable=broad-except
+                log.info(
+                    "Exception raised when running %s: %s",
+                    start_check,
+                    exc,
+                    exc_info=True,
+                )
+        if start_check_callbacks:
+            log.error(
+                "Failed to run start check callbacks after %1.2f seconds for %s. "
+                "Remaining start check callbacks: %s",
+                time.time() - checks_start_time,
+                self,
+                start_check_callbacks,
+            )
+            return False
+        log.debug("All start check callbacks executed for %s", self)
+        return True
+
+    def _check_listening_ports(self, timeout_at: float) -> bool:
+        """
+        Check if the defined ports are in a listening state.
+
+        This callback will run when trying to assess if the daemon is ready
+        to accept work by trying to connect to each of the ports it's supposed
+        to be listening.
+        """
         check_ports = set(self.get_check_ports())
         if not check_ports:
             log.debug("No ports to check connection to for %s", self)

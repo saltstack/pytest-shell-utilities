@@ -496,6 +496,136 @@ def test_daemon_callbacks(request, factory_stopped_script):
     assert callbacks.after_terminate_callback_counter == 3
 
 
+@attr.s
+class DaemonStartCheckCounter:
+    custom_start_check_1_callback_counter = attr.ib(default=0)  # type: int
+    custom_start_check_2_callback_counter = attr.ib(default=0)  # type: int
+    custom_start_check_3_callback_counter = attr.ib(default=0)  # type: int
+
+    def custom_start_check_1_callback(self, timeout_at):
+        self.custom_start_check_1_callback_counter += 1
+        if self.custom_start_check_1_callback_counter > 2:
+            return True
+        return False
+
+    def custom_start_check_2_callback(self, timeout_at):
+        self.custom_start_check_2_callback_counter += 1
+        if self.custom_start_check_2_callback_counter > 2:
+            return True
+        raise Exception("Foo!")
+
+    def custom_start_check_3_callback(self, timeout_at):
+        self.custom_start_check_3_callback_counter += 1
+        time.sleep(1)
+        return False
+
+
+def test_daemon_start_check_callbacks(request, factory_stopped_script):
+
+    daemon = Daemon(
+        script_name=sys.executable,
+        base_script_args=[factory_stopped_script],
+        start_timeout=3,
+        max_start_attempts=1,
+        check_ports=[12345],
+    )
+    callbacks = DaemonStartCheckCounter()
+    daemon.start_check(callbacks.custom_start_check_1_callback)
+    daemon.start_check(callbacks.custom_start_check_2_callback)
+
+    daemon_start_check_callbacks = daemon.get_start_check_callbacks()
+
+    with daemon.started():
+        # Both start callbacks should have run 3 times by now, at which
+        # time, they would have returned True
+        pass
+
+    assert callbacks.custom_start_check_1_callback_counter == 3
+    assert callbacks.custom_start_check_2_callback_counter == 3
+
+    # Assert that the list of callbacks is the same before running the start checks
+    assert daemon.get_start_check_callbacks() == daemon_start_check_callbacks
+
+
+def test_daemon_no_start_check_callbacks(request, tempfiles: Tempfiles):
+    script = tempfiles.makepyfile(
+        r"""
+        # coding=utf-8
+
+        import sys
+        import time
+        import multiprocessing
+
+        def main():
+            time.sleep(3)
+            sys.stdout.write("Done!\n")
+            sys.stdout.flush()
+            sys.exit(0)
+
+        # Support for windows test runs
+        if __name__ == '__main__':
+            multiprocessing.freeze_support()
+            main()
+        """,
+        executable=True,
+    )
+    daemon = Daemon(
+        script_name=sys.executable,
+        base_script_args=[script],
+        start_timeout=2,
+        max_start_attempts=1,
+    )
+    # Remove the check ports callback
+    daemon._start_checks_callbacks.clear()
+    # Make sure the daemon is terminated no matter what
+    request.addfinalizer(daemon.terminate)
+    with daemon.started():
+        # Daemon started without running any start checks
+        pass
+    assert not daemon.get_start_check_callbacks()
+
+
+def test_daemon_start_check_callbacks_factory_not_running(request, tempfiles: Tempfiles):
+    script = tempfiles.makepyfile(
+        r"""
+        # coding=utf-8
+
+        import sys
+        import time
+        import multiprocessing
+
+        def main():
+            time.sleep(2)
+            sys.stdout.write("Done!\n")
+            sys.stdout.flush()
+            sys.exit(0)
+
+        # Support for windows test runs
+        if __name__ == '__main__':
+            multiprocessing.freeze_support()
+            main()
+        """,
+        executable=True,
+    )
+
+    callbacks = DaemonStartCheckCounter()
+
+    daemon = Daemon(
+        script_name=sys.executable,
+        base_script_args=[script],
+        start_timeout=2,
+        max_start_attempts=1,
+    )
+    # Make sure the daemon is terminated no matter what
+    request.addfinalizer(daemon.terminate)
+
+    daemon.start_check(callbacks.custom_start_check_3_callback)
+    with pytest.raises(FactoryNotStarted):
+        daemon.start()
+    # Make sure the callback was called at least once
+    assert callbacks.custom_start_check_3_callback_counter > 1
+
+
 def test_context_manager_returns_class_instance(tempfiles):
     script = tempfiles.makepyfile(
         r"""
