@@ -968,21 +968,25 @@ class Daemon(ScriptSubprocess):
             start_timeout=start_timeout,
         )
 
+    @contextlib.contextmanager
     def started(
         self,
         *extra_cli_arguments: str,
         max_start_attempts: Optional[int] = None,
         start_timeout: Optional[Union[int, float]] = None
-    ) -> 'Daemon':
+    ) -> Generator['Daemon', None, None]:
         """
         Start the daemon and return it's instance so it can be used as a context manager.
         """
-        self.start(
-            *extra_cli_arguments,
-            max_start_attempts=max_start_attempts,
-            start_timeout=start_timeout,
-        )
-        return self
+        try:
+            self.start(
+                *extra_cli_arguments,
+                max_start_attempts=max_start_attempts,
+                start_timeout=start_timeout,
+            )
+            yield self
+        finally:
+            self.terminate()
 
     @contextlib.contextmanager
     def stopped(
@@ -1061,7 +1065,7 @@ class Daemon(ScriptSubprocess):
                         exc,
                         exc_info=True,
                     )
-            _started = self.started(*start_arguments.args, **start_arguments.kwargs)
+            _started = self.start(*start_arguments.args, **start_arguments.kwargs)
             if _started:
                 if after_start_callback:
                     try:
