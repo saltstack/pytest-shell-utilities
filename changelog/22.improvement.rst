@@ -1,0 +1,1 @@
+``Daemon.started()`` is now a context manager
