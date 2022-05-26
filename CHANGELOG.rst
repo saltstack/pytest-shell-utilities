@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.3.0 (2022-05-26)
+==================================
+
+Improvements
+------------
+
+- Support user provided callable functions to confirm that the daemon is up and running (`#20 <https://github.com/saltstack/pytest-shell-utilities/issues/20>`_)
+
+
 shell-utilities 1.2.1 (2022-05-23)
 ==================================
 

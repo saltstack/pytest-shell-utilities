@@ -1,1 +1,0 @@
-Support user provided callable functions to confirm that the daemon is up and running
