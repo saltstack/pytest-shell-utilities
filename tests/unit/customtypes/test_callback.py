@@ -6,18 +6,33 @@ import pytest
 from pytestshellutils.customtypes import Callback
 
 
-def foo_func(arg1, arg2, keyword_argument=None):
-    return {"arg1": arg1, "arg2": arg2, "keyword_argument": keyword_argument}
+def func(*args, **kwargs):
+    return {"args": args, "kwargs": kwargs}
 
 
 @pytest.fixture
 def callback():
-    return Callback(func=foo_func, args=("a1", "a2"), kwargs={"keyword_argument": True})
+    return Callback(func=func, args=("a1", "a2"), kwargs={"keyword_argument": True})
 
 
 def test___str__(callback):
-    assert str(callback) == "foo_func('a1', 'a2', keyword_argument=True)"
+    assert str(callback) == "func('a1', 'a2', keyword_argument=True)"
 
 
 def test___call__(callback):
-    assert callback() == {"arg1": "a1", "arg2": "a2", "keyword_argument": True}
+    assert callback() == {"args": ("a1", "a2"), "kwargs": {"keyword_argument": True}}
+
+
+def test___call__extra_args(callback):
+    assert callback("bar") == {"args": ("bar", "a1", "a2"), "kwargs": {"keyword_argument": True}}
+
+
+def test___call__extra_kwargs(callback):
+    assert callback(bar=2) == {"args": ("a1", "a2"), "kwargs": {"keyword_argument": True, "bar": 2}}
+
+
+def test___call__override_kwarg(callback):
+    assert callback(keyword_argument=False) == {
+        "args": ("a1", "a2"),
+        "kwargs": {"keyword_argument": False},
+    }

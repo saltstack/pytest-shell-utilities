@@ -3,6 +3,8 @@
 """
 Custom Types.
 """
+import copy
+import logging
 from typing import Any
 from typing import Callable
 from typing import Dict
@@ -16,6 +18,9 @@ from pytestshellutils.utils import format_callback_to_string
 
 if TYPE_CHECKING:
     from pytestshellutils.shell import Daemon
+
+
+log = logging.getLogger(__name__)
 
 
 class EnvironDict(Dict[str, str]):
@@ -70,8 +75,12 @@ class Callback:
         """
         return format_callback_to_string(self.func, self.args, self.kwargs)
 
-    def __call__(self) -> Any:
+    def __call__(self, *args: Any, **kwargs: Any) -> Any:
         """
         Call the callback.
         """
-        return self.func(*(self.args or ()), **(self.kwargs or {}))
+        _args = tuple(list(args) + list(self.args or ()))
+        _kwargs = copy.deepcopy(self.kwargs)
+        _kwargs.update(kwargs)
+        log.debug("Running %s", format_callback_to_string(self.func, _args, _kwargs))
+        return self.func(*_args, **_kwargs)
