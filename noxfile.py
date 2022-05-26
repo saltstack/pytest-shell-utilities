@@ -22,11 +22,11 @@ IS_WINDOWS = sys.platform.lower().startswith("win")
 IS_DARWIN = sys.platform.lower().startswith("darwin")
 
 if IS_WINDOWS:
-    COVERAGE_FAIL_UNDER_PERCENT = 98
+    COVERAGE_FAIL_UNDER_PERCENT = 88
 elif IS_DARWIN:
-    COVERAGE_FAIL_UNDER_PERCENT = 98
+    COVERAGE_FAIL_UNDER_PERCENT = 88
 else:
-    COVERAGE_FAIL_UNDER_PERCENT = 98
+    COVERAGE_FAIL_UNDER_PERCENT = 88
 
 # Be verbose when running under a CI context
 PIP_INSTALL_SILENT = (os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")) is None
@@ -233,9 +233,9 @@ def tests(session):
                 "--show-missing",
                 "--include=src/pytestshellutils/*,tests/*",
             ]
-            session.run(*cmdline)
             if pytest_version(session) >= (6, 2):
                 cmdline.append("--fail-under={}".format(COVERAGE_FAIL_UNDER_PERCENT))
+            session.run(*cmdline)
         finally:
             if COVERAGE_REPORT_DB.exists():
                 shutil.copyfile(str(COVERAGE_REPORT_DB), str(ARTIFACTS_DIR / ".coverage"))
