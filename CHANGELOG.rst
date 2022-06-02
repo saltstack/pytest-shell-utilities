@@ -13,6 +13,21 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.5.0 (2022-06-02)
+==================================
+
+Improvements
+------------
+
+- The minimum python for the code base is now 3.7(we still provide support to Py3.5 and Py3.6 by providing a downgraded source, transparent to the user), and the project is now 100% typed, including the test suite. (`#26 <https://github.com/saltstack/pytest-shell-utilities/issues/26>`_)
+
+
+Improved Documentation
+----------------------
+
+- Improve and switch to google style docstrings (`#24 <https://github.com/saltstack/pytest-shell-utilities/issues/24>`_)
+
+
 shell-utilities 1.4.0 (2022-05-26)
 ==================================
 
