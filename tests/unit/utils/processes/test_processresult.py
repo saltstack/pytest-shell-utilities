@@ -7,17 +7,18 @@ import json as jsonlib
 import textwrap
 
 import pytest
+from pytest_subtests import SubTests
 
 from pytestshellutils.utils.processes import ProcessResult
 
 
 @pytest.mark.parametrize("returncode", [None, 1.0, -1.0, "0"])
-def test_non_int_returncode_raises_exception(returncode):
+def test_non_int_returncode_raises_exception(returncode: int) -> None:
     with pytest.raises(ValueError):
         ProcessResult(returncode=returncode, stdout="", stderr="")
 
 
-def test_attributes(subtests):
+def test_attributes(subtests: SubTests) -> None:
     returncode = 0
     stdout = "STDOUT"
     stderr = "STDERR"
@@ -72,7 +73,7 @@ def test_attributes(subtests):
         assert ret.cmdline == cmdline
 
 
-def test_str_formatting(subtests):
+def test_str_formatting(subtests: SubTests) -> None:
     returncode = 0
     stdout = "STDOUT"
     stderr = "STDERR"

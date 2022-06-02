@@ -3,8 +3,11 @@
 #
 import sys
 
+from pytestshellutils.shell import Subprocess
+from tests.conftest import Tempfiles
 
-def test_run_call(tempfiles, shell):
+
+def test_run_call(tempfiles: Tempfiles, shell: Subprocess) -> None:
     script = tempfiles.makepyfile(
         """
         # coding=utf-8

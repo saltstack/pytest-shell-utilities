@@ -8,14 +8,14 @@ import pytestshellutils.exceptions as exceptions
 from pytestshellutils.utils.processes import ProcessResult
 
 
-def test_process_failed_message():
+def test_process_failed_message() -> None:
     message = "The message"
     with pytest.raises(exceptions.FactoryFailure) as exc:
         raise exceptions.FactoryFailure(message)
     assert str(exc.value) == message
 
 
-def test_process_failed_cmdline():
+def test_process_failed_cmdline() -> None:
     message = "The message"
     cmdline = ["python", "--version"]
     expected = textwrap.dedent(
@@ -35,7 +35,7 @@ def test_process_failed_cmdline():
     assert output == expected
 
 
-def test_process_failed_returncode():
+def test_process_failed_returncode() -> None:
     message = "The message"
     returncode = 1
     expected = textwrap.dedent(
@@ -54,7 +54,7 @@ def test_process_failed_returncode():
     assert output == expected
 
 
-def test_process_failed_stdout():
+def test_process_failed_stdout() -> None:
     message = "The message"
     stdout = "This is the STDOUT"
     expected = textwrap.dedent(
@@ -77,7 +77,7 @@ def test_process_failed_stdout():
     assert output == expected
 
 
-def test_process_failed_stderr():
+def test_process_failed_stderr() -> None:
     message = "The message"
     stderr = "This is the STDERR"
     expected = textwrap.dedent(
@@ -100,7 +100,7 @@ def test_process_failed_stderr():
     assert output == expected
 
 
-def test_process_failed_stdout_and_stderr():
+def test_process_failed_stdout_and_stderr() -> None:
     message = "The message"
     stdout = "This is the STDOUT"
     stderr = "This is the STDERR"
@@ -127,7 +127,7 @@ def test_process_failed_stdout_and_stderr():
     assert output == expected
 
 
-def test_process_failed_cmdline_stdout_and_stderr():
+def test_process_failed_cmdline_stdout_and_stderr() -> None:
     message = "The message"
     stdout = "This is the STDOUT"
     stderr = "This is the STDERR"
@@ -156,7 +156,7 @@ def test_process_failed_cmdline_stdout_and_stderr():
     assert output == expected
 
 
-def test_process_failed_cmdline_stdout_stderr_and_returncode():
+def test_process_failed_cmdline_stdout_stderr_and_returncode() -> None:
     message = "The message"
     stdout = "This is the STDOUT"
     stderr = "This is the STDERR"

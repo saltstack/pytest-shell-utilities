@@ -22,11 +22,11 @@ IS_WINDOWS = sys.platform.lower().startswith("win")
 IS_DARWIN = sys.platform.lower().startswith("darwin")
 
 if IS_WINDOWS:
-    COVERAGE_FAIL_UNDER_PERCENT = 88
+    COVERAGE_FAIL_UNDER_PERCENT = 87
 elif IS_DARWIN:
-    COVERAGE_FAIL_UNDER_PERCENT = 88
+    COVERAGE_FAIL_UNDER_PERCENT = 87
 else:
-    COVERAGE_FAIL_UNDER_PERCENT = 88
+    COVERAGE_FAIL_UNDER_PERCENT = 87
 
 # Be verbose when running under a CI context
 PIP_INSTALL_SILENT = (os.environ.get("CI") or os.environ.get("GITHUB_ACTIONS")) is None

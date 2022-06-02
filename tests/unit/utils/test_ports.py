@@ -4,6 +4,9 @@
 Test the port related utilities.
 """
 import functools
+from typing import Any
+from typing import List
+from typing import Tuple
 from unittest import mock
 
 import pytest
@@ -11,39 +14,39 @@ import pytest
 import pytestshellutils.utils.ports as ports_utils
 
 
-class MockedCreateSocket:
-    """
-    This class just mocks the `socket.socket(...)` call so that we return the ports we want.
-    """
-
-    def __init__(self, ports):
-        self.ports = list(ports) + list(ports)
-
-    def __call__(self, *args, **kwargs):
-        port = self.ports.pop(0)
-        # Return a MockedSocket instance
-        return MockedSocket(port)
-
-
 class MockedSocket:
     """
     This class is used so that we can return the known port in the getsockname call.
     """
 
-    def __init__(self, port):
+    def __init__(self, port: int):
         self.port = port
 
-    def bind(self, *args, **kwargs):
+    def bind(self, *args: Any, **kwargs: Any) -> None:
         pass
 
-    def getsockname(self):
+    def getsockname(self) -> Tuple[None, int]:
         return None, self.port
 
-    def close(self):
+    def close(self) -> None:
         pass
 
 
-def test_get_unused_localhost_port_cached():
+class MockedCreateSocket:
+    """
+    This class just mocks the `socket.socket(...)` call so that we return the ports we want.
+    """
+
+    def __init__(self, ports: List[int]):
+        self.ports = list(ports) + list(ports)
+
+    def __call__(self, *args: Any, **kwargs: Any) -> MockedSocket:
+        port = self.ports.pop(0)
+        # Return a MockedSocket instance
+        return MockedSocket(port)
+
+
+def test_get_unused_localhost_port_cached() -> None:
     """
     Tests that test_get_unused_localhost_port only returns unique ports on consecutive calls.
     """

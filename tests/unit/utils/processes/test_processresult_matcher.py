@@ -17,11 +17,11 @@ The lamb was sure to go.
 
 
 @pytest.fixture
-def process_result():
+def process_result() -> ProcessResult:
     return ProcessResult(returncode=0, stdout=MARY_HAD_A_LITTLE_LAMB, stderr=None)
 
 
-def test_instance_types():
+def test_instance_types() -> None:
     ret = ProcessResult(returncode=0, stdout="STDOUT", stderr="STDERR")
     assert isinstance(ret.stdout, str)
     assert isinstance(ret.stderr, str)
@@ -33,7 +33,7 @@ def test_instance_types():
     assert ret.stderr == 2
 
 
-def test_matcher_attribute(process_result):
+def test_matcher_attribute(process_result: ProcessResult) -> None:
     process_result.stdout.matcher.fnmatch_lines_random(
         [
             "*had a little*",

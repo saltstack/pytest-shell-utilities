@@ -54,17 +54,17 @@ def format_callback_to_string(
     callback_str = None
     if not isinstance(callback, str):
         try:
-            callback_str = '{}('.format(callback.__qualname__)
+            callback_str = '{0}('.format(callback.__qualname__)
         except AttributeError:
-            callback_str = '{}('.format(callback.__name__)
+            callback_str = '{0}('.format(callback.__name__)
     else:
-        callback_str = '{}('.format(callback)
+        callback_str = '{0}('.format(callback)
     if args:
         callback_str += ', '.join([repr(arg) for arg in args])
     if kwargs:
         if args:
             callback_str += ', '
-        callback_str += ', '.join(['{}={!r}'.format(k, v) for k, v in kwargs.items()])
+        callback_str += ', '.join(['{0}={1}'.format(k, v) for k, v in kwargs.items()])
     callback_str += ')'
     return callback_str
 

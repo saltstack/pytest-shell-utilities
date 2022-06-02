@@ -9,7 +9,7 @@ import pytest
 from pytestshellutils.shell import Subprocess
 
 
-@pytest.fixture  # type: ignore[misc]
+@pytest.fixture
 def shell() -> Subprocess:
     """
     Shell fixture.

@@ -4,17 +4,20 @@
 import os
 import pathlib
 import sys
+from typing import Any
 from typing import cast
 
 import pytest
+from pytest_subtests import SubTests
 
 from pytestshellutils.customtypes import EnvironDict
 from pytestshellutils.exceptions import FactoryTimeout
 from pytestshellutils.shell import ScriptSubprocess
+from tests.conftest import Tempfiles
 
 
 @pytest.mark.parametrize("exitcode", [0, 1, 3, 9, 40, 120])
-def test_exitcode(exitcode, tempfiles):
+def test_exitcode(exitcode: int, tempfiles: Tempfiles) -> None:
     shell = ScriptSubprocess(script_name=sys.executable)
     script = tempfiles.makepyfile(
         """
@@ -30,7 +33,7 @@ def test_exitcode(exitcode, tempfiles):
     assert result.returncode == exitcode
 
 
-def test_timeout_defined_on_class_instantiation(tempfiles):
+def test_timeout_defined_on_class_instantiation(tempfiles: Tempfiles) -> None:
     shell = ScriptSubprocess(script_name=sys.executable, timeout=0.5)
     script = tempfiles.makepyfile(
         """
@@ -44,7 +47,7 @@ def test_timeout_defined_on_class_instantiation(tempfiles):
         shell.run(script)
 
 
-def test_timeout_defined_run(tempfiles):
+def test_timeout_defined_run(tempfiles: Tempfiles) -> None:
     shell = ScriptSubprocess(script_name=sys.executable)
     script = tempfiles.makepyfile(
         """
@@ -78,7 +81,7 @@ def test_timeout_defined_run(tempfiles):
         ("{'a': 'a', '1': 1}", None),
     ],
 )
-def test_json_output(input_str, expected_object, tempfiles):
+def test_json_output(input_str: str, expected_object: Any, tempfiles: Tempfiles) -> None:
     shell = ScriptSubprocess(script_name=sys.executable)
     script = tempfiles.makepyfile(
         """
@@ -97,7 +100,7 @@ def test_json_output(input_str, expected_object, tempfiles):
     assert result.stdout == input_str
 
 
-def test_stderr_output(tempfiles):
+def test_stderr_output(tempfiles: Tempfiles) -> None:
     input_str = "Thou shalt not exit cleanly"
     shell = ScriptSubprocess(script_name=sys.executable)
     script = tempfiles.makepyfile(
@@ -113,7 +116,7 @@ def test_stderr_output(tempfiles):
     assert result.stderr == input_str + "\n"
 
 
-def test_unicode_output(tempfiles):
+def test_unicode_output(tempfiles: Tempfiles) -> None:
     shell = ScriptSubprocess(script_name=sys.executable)
     script = tempfiles.makepyfile(
         r"""
@@ -133,7 +136,7 @@ def test_unicode_output(tempfiles):
     assert result.stderr == "STDERR Fátima"
 
 
-def test_process_failed_to_start(tempfiles):
+def test_process_failed_to_start(tempfiles: Tempfiles) -> None:
     shell = ScriptSubprocess(script_name=sys.executable)
     script = tempfiles.makepyfile(
         """
@@ -146,7 +149,7 @@ def test_process_failed_to_start(tempfiles):
     assert "ZeroDivisionError: division by zero" in result.stderr
 
 
-def test_environ(tempfiles):
+def test_environ(tempfiles: Tempfiles) -> None:
     environ = cast(EnvironDict, os.environ.copy())
     environ["FOO"] = "foo"
     shell = ScriptSubprocess(script_name=sys.executable, environ=environ)
@@ -166,7 +169,7 @@ def test_environ(tempfiles):
     assert result.data["FOO"] == "foo"
 
 
-def test_env_in_run_call(tempfiles):
+def test_env_in_run_call(tempfiles: Tempfiles) -> None:
     env = cast(EnvironDict, {"FOO": "bar"})
     environ = cast(EnvironDict, os.environ.copy())
     environ["FOO"] = "foo"
@@ -187,14 +190,14 @@ def test_env_in_run_call(tempfiles):
     assert result.data["FOO"] == env["FOO"]
 
 
-def test_not_started():
+def test_not_started() -> None:
     shell = ScriptSubprocess(script_name=sys.executable)
     assert shell.is_running() is False
     assert not shell.pid
     assert shell.terminate() is None
 
 
-def test_display_name(tempfiles):
+def test_display_name(tempfiles: Tempfiles) -> None:
     python_binary_name = pathlib.Path(sys.executable).name
     display_name = "ScriptSubprocess({})".format(python_binary_name)
     shell = ScriptSubprocess(script_name=sys.executable)
@@ -212,7 +215,7 @@ def test_display_name(tempfiles):
     assert shell.get_display_name() == display_name
 
 
-def test_get_script_path(subtests):
+def test_get_script_path(subtests: SubTests) -> None:
     python_binary_name = pathlib.Path(sys.executable).name
     with subtests.test(script_name=sys.executable):
         shell = ScriptSubprocess(script_name=sys.executable)

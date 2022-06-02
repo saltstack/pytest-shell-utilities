@@ -7,8 +7,15 @@ import os
 import stat
 import tempfile
 import textwrap
+from typing import Optional
+from typing import Tuple
 
 import pytest
+
+try:
+    from pytest import FixtureRequest
+except ImportError:
+    from _pytest.fixtures import FixtureRequest
 
 try:  # pragma: no cover
     import importlib.metadata
@@ -22,14 +29,14 @@ except ImportError:  # pragma: no cover
     except ImportError:  # pragma: no cover
         import pkg_resources
 
-        def pkg_version(package):
+        def pkg_version(package):  # type: ignore[no-untyped-def]
             return pkg_resources.get_distribution(package).version
 
 
 log = logging.getLogger(__name__)
 
 
-def pkg_version_info(package):
+def pkg_version_info(package: str) -> Tuple[int, ...]:
     """
     Return a version info tuple for the given package.
     """
@@ -41,7 +48,7 @@ if pkg_version_info("pytest") >= (6, 2):
 else:  # pragma: no cover
 
     @pytest.fixture
-    def pytester():
+    def pytester() -> None:
         pytest.skip("The pytester fixture is not available in Pytest < 6.2.0")
 
 
@@ -50,10 +57,12 @@ class Tempfiles:
     Class which generates temporary files and cleans them when done.
     """
 
-    def __init__(self, request):
+    def __init__(self, request: FixtureRequest):
         self.request = request
 
-    def makepyfile(self, contents, prefix=None, executable=False):
+    def makepyfile(
+        self, contents: str, prefix: Optional[str] = None, executable: bool = False
+    ) -> str:
         """
         Creates a python file and returns it's path.
         """
@@ -74,7 +83,7 @@ class Tempfiles:
             )
         return tfile.name
 
-    def _delete_temp_file(self, fpath):
+    def _delete_temp_file(self, fpath: str) -> None:
         """
         Cleanup the temporary path.
         """
@@ -83,7 +92,7 @@ class Tempfiles:
 
 
 @pytest.fixture
-def tempfiles(request):
+def tempfiles(request: FixtureRequest) -> Tempfiles:
     """
     Temporary files fixture.
     """

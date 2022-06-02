@@ -25,7 +25,7 @@ def get_unused_localhost_port(use_cache: bool = False) -> int:
     """
     if not isinstance(use_cache, bool):
         raise pytest.UsageError(
-            "The value of 'use_cache' needs to be an boolean, not {}".format(type(use_cache))
+            f"The value of 'use_cache' needs to be an boolean, not {type(use_cache)}"
         )
 
     with contextlib.closing(socket.socket(family=socket.AF_INET, type=socket.SOCK_STREAM)) as usock:
