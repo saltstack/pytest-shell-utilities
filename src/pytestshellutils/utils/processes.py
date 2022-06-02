@@ -82,8 +82,8 @@ class ProcessResult:
     """
 
     returncode: int = attr.ib()
-    stdout: str = attr.ib(converter=convert_string_to_match_string)
-    stderr: str = attr.ib(converter=convert_string_to_match_string)
+    stdout: MatchString = attr.ib(converter=convert_string_to_match_string)
+    stderr: MatchString = attr.ib(converter=convert_string_to_match_string)
     cmdline: Optional[List[str]] = attr.ib(default=None)
     data_key: Optional[str] = attr.ib(default=None)
     data: Optional[Dict[Any, Any]] = attr.ib()
