@@ -39,13 +39,18 @@ def format_callback_to_string(
     """
     Convert a callback, its arguments and keyword arguments to a string suitable for logging purposes.
 
-    :param ~collections.abc.Callable,str callback:
-        The callback function
-    :param list,tuple args:
-        The callback arguments
-    :param dict kwargs:
-        The callback keyword arguments
-    :rtype: str
+    Arguments:
+        callback:
+            The callback function
+
+    Keyword Arguments:
+        args:
+            The callback arguments
+        kwargs:
+            The callback keyword arguments
+
+    Returns:
+        str: The formatted callback string
     """
     callback_str: str
     if not isinstance(callback, str):
@@ -81,19 +86,25 @@ def warn_until(
     be raised to remind the developers to remove the warning because the
     target version has been reached.
 
-    :param version:
-        The version string after which the warning becomes a ``RuntimeError``.
-        For example ``2.1``.
-    :param message:
-        The warning message to be displayed.
-    :param category:
-        The warning class to be thrown, by default ``DeprecationWarning``
-    :param stacklevel:
-        There should be no need to set the value of ``stacklevel``.
-    :param _dont_call_warnings:
-        This parameter is used just to get the functionality until the actual
-        error is to be issued. When we're only after the version checks to
-        raise a ``RuntimeError``.
+    Arguments:
+        version:
+            The version string after which the warning becomes a ``RuntimeError``.
+            For example ``2.1``.
+        message:
+            The warning message to be displayed.
+
+    Keyword Arguments:
+        category:
+            The warning class to be thrown, by default ``DeprecationWarning``
+        stacklevel:
+            There should be no need to set the value of ``stacklevel``.
+        _dont_call_warnings:
+            This parameter is used just to get the functionality until the actual
+            error is to be issued. When we're only after the version checks to
+            raise a ``RuntimeError``.
+
+    Returns:
+        Nothing.
     """
     _version = packaging.version.parse(version)
     if _pkg_version_ is None:

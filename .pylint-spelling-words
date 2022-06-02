@@ -10,6 +10,7 @@ autodoc
 basename
 basepath
 bool
+boolean
 changelog
 cli
 cmdline
@@ -21,6 +22,7 @@ cwd
 darwin
 dns
 eg
+env
 environ
 exitcode
 favicon

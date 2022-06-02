@@ -24,10 +24,13 @@ class ProcessFailed(ShellUtilsException):
     """
     Exception raised when a sub-process fails.
 
-    :param str message:
-        The exception message
-    :keyword process_result: ProcessResult:
-        The ``ProcessResult`` instance when the exception occurred
+    Arguments:
+        message:
+            The exception message
+
+    Keyword Arguments:
+        process_result:
+            The ``ProcessResult`` instance when the exception occurred
     """
 
     def __init__(self, message: str, process_result: Optional[ProcessResult] = None) -> None:
