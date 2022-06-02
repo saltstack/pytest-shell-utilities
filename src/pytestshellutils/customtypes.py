@@ -32,7 +32,7 @@ class EnvironDict(Dict[str, str]):
         """
         String representation of the class.
         """
-        return "EnvironDict({})".format(super().__str__())
+        return f"EnvironDict({super().__str__()})"
 
 
 class GenericCallback(Protocol):

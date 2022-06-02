@@ -7,6 +7,7 @@ import pprint
 import re
 import sys
 import time
+from typing import List
 
 import attr
 import psutil
@@ -19,18 +20,25 @@ from pytestshellutils.shell import Daemon
 from pytestshellutils.utils.processes import _get_cmdline
 from tests.conftest import Tempfiles
 
+try:
+    from pytest import FixtureRequest
+    from pytest import LogCaptureFixture
+except ImportError:
+    from _pytest.fixtures import FixtureRequest
+    from _pytest.logging import LogCaptureFixture
+
 PROCESS_START_TIMEOUT = 2
 
 log = logging.getLogger(__name__)
 
 
-def kill_children(procs):  # pragma: no cover
+def kill_children(procs: List[psutil.Process]) -> None:  # pragma: no cover
     _, alive = psutil.wait_procs(procs, timeout=3)
     for p in alive:
         p.kill()
 
 
-def test_daemon_process_termination(request, tempfiles: Tempfiles):
+def test_daemon_process_termination(request: FixtureRequest, tempfiles: Tempfiles) -> None:
     primary_childrend_count = 5
     secondary_children_count = 3
     script = tempfiles.makepyfile(
@@ -91,11 +99,10 @@ def test_daemon_process_termination(request, tempfiles: Tempfiles):
         executable=True,
     )
     if not platform.is_windows():
-        factory_kwargs = dict(script_name=script)
+        daemon = Daemon(start_timeout=1, script_name=script)
     else:  # pragma: is-windows
         # Windows don't know how to handle python scripts directly
-        factory_kwargs = dict(script_name=sys.executable, base_script_args=[script])
-    daemon = Daemon(start_timeout=1, **factory_kwargs)
+        daemon = Daemon(start_timeout=1, script_name=sys.executable, base_script_args=[script])
     daemon.start()
     daemon_pid = daemon.pid
     # Make sure the daemon is terminated no matter what
@@ -132,7 +139,9 @@ def test_daemon_process_termination(request, tempfiles: Tempfiles):
 
 
 @pytest.mark.skip("Will debug later")
-def test_daemon_process_termination_parent_killed(request, tempfiles: Tempfiles):
+def test_daemon_process_termination_parent_killed(
+    request: FixtureRequest, tempfiles: Tempfiles
+) -> None:
 
     primary_childrend_count = 5
     secondary_children_count = 3
@@ -193,11 +202,10 @@ def test_daemon_process_termination_parent_killed(request, tempfiles: Tempfiles)
         executable=True,
     )
     if not platform.is_windows():
-        factory_kwargs = dict(script_name=script)
+        daemon = Daemon(start_timeout=1, script_name=script)
     else:  # pragma: is-windows
         # Windows don't know how to handle python scripts directly
-        factory_kwargs = dict(script_name=sys.executable, base_script_args=[script])
-    daemon = Daemon(start_timeout=1, **factory_kwargs)
+        daemon = Daemon(start_timeout=1, script_name=sys.executable, base_script_args=[script])
     daemon.start()
     daemon_pid = daemon.pid
     # Make sure the daemon is terminated no matter what
@@ -228,7 +236,9 @@ def test_daemon_process_termination_parent_killed(request, tempfiles: Tempfiles)
 
 
 @pytest.mark.parametrize("start_timeout", [0.1, 0.3])
-def test_started_context_manager(request, tempfiles: Tempfiles, start_timeout: float):
+def test_started_context_manager(
+    request: FixtureRequest, tempfiles: Tempfiles, start_timeout: float
+) -> None:
     script = tempfiles.makepyfile(
         r"""
         # coding=utf-8
@@ -288,7 +298,7 @@ def test_started_context_manager(request, tempfiles: Tempfiles, start_timeout: f
 
 
 @pytest.fixture
-def factory_stopped_script(tempfiles):
+def factory_stopped_script(tempfiles: Tempfiles) -> str:
     return tempfiles.makepyfile(
         r"""
         # coding=utf-8
@@ -324,7 +334,9 @@ def factory_stopped_script(tempfiles):
     )
 
 
-def test_stopped_context_manager_raises_FactoryNotRunning(request, factory_stopped_script):
+def test_stopped_context_manager_raises_FactoryNotRunning(
+    request: FixtureRequest, factory_stopped_script: str
+) -> None:
     daemon = Daemon(
         script_name=sys.executable,
         base_script_args=[factory_stopped_script],
@@ -340,7 +352,7 @@ def test_stopped_context_manager_raises_FactoryNotRunning(request, factory_stopp
             pass  # pragma: no cover
 
 
-def test_stopped_context_manager(request, factory_stopped_script):
+def test_stopped_context_manager(request: FixtureRequest, factory_stopped_script: str) -> None:
     daemon = Daemon(
         script_name=sys.executable,
         base_script_args=[factory_stopped_script],
@@ -365,16 +377,16 @@ class DaemonCallbackCounter:
     before_terminate_callback_counter = attr.ib(default=0)  # type: int
     after_terminate_callback_counter = attr.ib(default=0)  # type: int
 
-    def before_start_callback(self):
+    def before_start_callback(self) -> None:
         self.before_start_callback_counter += 1
 
-    def after_start_callback(self):
+    def after_start_callback(self) -> None:
         self.after_start_callback_counter += 1
 
-    def before_terminate_callback(self):
+    def before_terminate_callback(self) -> None:
         self.before_terminate_callback_counter += 1
 
-    def after_terminate_callback(self):
+    def after_terminate_callback(self) -> None:
         self.after_terminate_callback_counter += 1
 
 
@@ -386,24 +398,24 @@ class DaemonContextCallbackCounter:
     before_stop_callback_counter = attr.ib(default=0)  # type: int
     after_stop_callback_counter = attr.ib(default=0)  # type: int
 
-    def before_start_callback(self, daemon):
+    def before_start_callback(self, daemon: Daemon) -> None:
         assert daemon is self.daemon
         self.before_start_callback_counter += 1
 
-    def after_start_callback(self, daemon):
+    def after_start_callback(self, daemon: Daemon) -> None:
         assert daemon is self.daemon
         self.after_start_callback_counter += 1
 
-    def before_stop_callback(self, daemon):
+    def before_stop_callback(self, daemon: Daemon) -> None:
         assert daemon is self.daemon
         self.before_stop_callback_counter += 1
 
-    def after_stop_callback(self, daemon):
+    def after_stop_callback(self, daemon: Daemon) -> None:
         assert daemon is self.daemon
         self.after_stop_callback_counter += 1
 
 
-def test_daemon_callbacks(request, factory_stopped_script):
+def test_daemon_callbacks(request: FixtureRequest, factory_stopped_script: str) -> None:
 
     daemon = Daemon(
         script_name=sys.executable,
@@ -502,25 +514,25 @@ class DaemonStartCheckCounter:
     custom_start_check_2_callback_counter = attr.ib(default=0)  # type: int
     custom_start_check_3_callback_counter = attr.ib(default=0)  # type: int
 
-    def custom_start_check_1_callback(self, timeout_at):
+    def custom_start_check_1_callback(self, timeout_at: float) -> bool:
         self.custom_start_check_1_callback_counter += 1
         if self.custom_start_check_1_callback_counter > 2:
             return True
         return False
 
-    def custom_start_check_2_callback(self, timeout_at):
+    def custom_start_check_2_callback(self, timeout_at: float) -> bool:
         self.custom_start_check_2_callback_counter += 1
         if self.custom_start_check_2_callback_counter > 2:
             return True
         raise Exception("Foo!")
 
-    def custom_start_check_3_callback(self, timeout_at):
+    def custom_start_check_3_callback(self, timeout_at: float) -> bool:
         self.custom_start_check_3_callback_counter += 1
         time.sleep(1)
         return False
 
 
-def test_daemon_start_check_callbacks(request, factory_stopped_script):
+def test_daemon_start_check_callbacks(request: FixtureRequest, factory_stopped_script: str) -> None:
 
     daemon = Daemon(
         script_name=sys.executable,
@@ -547,7 +559,7 @@ def test_daemon_start_check_callbacks(request, factory_stopped_script):
     assert daemon.get_start_check_callbacks() == daemon_start_check_callbacks
 
 
-def test_daemon_no_start_check_callbacks(request, tempfiles: Tempfiles):
+def test_daemon_no_start_check_callbacks(request: FixtureRequest, tempfiles: Tempfiles) -> None:
     script = tempfiles.makepyfile(
         r"""
         # coding=utf-8
@@ -585,7 +597,9 @@ def test_daemon_no_start_check_callbacks(request, tempfiles: Tempfiles):
     assert not daemon.get_start_check_callbacks()
 
 
-def test_daemon_start_check_callbacks_factory_not_running(request, tempfiles: Tempfiles):
+def test_daemon_start_check_callbacks_factory_not_running(
+    request: FixtureRequest, tempfiles: Tempfiles
+) -> None:
     script = tempfiles.makepyfile(
         r"""
         # coding=utf-8
@@ -626,7 +640,7 @@ def test_daemon_start_check_callbacks_factory_not_running(request, tempfiles: Te
     assert callbacks.custom_start_check_3_callback_counter > 1
 
 
-def test_context_manager_returns_class_instance(tempfiles):
+def test_context_manager_returns_class_instance(tempfiles: Tempfiles) -> None:
     script = tempfiles.makepyfile(
         r"""
         # coding=utf-8
@@ -695,7 +709,9 @@ def test_context_manager_returns_class_instance(tempfiles):
 
 
 @pytest.mark.parametrize("max_start_attempts", [1, 2, 3])
-def test_exact_max_start_attempts(tempfiles, caplog, max_start_attempts):
+def test_exact_max_start_attempts(
+    tempfiles: Tempfiles, caplog: LogCaptureFixture, max_start_attempts: int
+) -> None:
     """
     This test asserts that we properly report max_start_attempts.
     """

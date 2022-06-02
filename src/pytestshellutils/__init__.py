@@ -8,7 +8,7 @@ import re
 import sys
 
 
-USE_DOWNGRADED_TRANSPILED_CODE = sys.version_info < (3, 6)
+USE_DOWNGRADED_TRANSPILED_CODE = sys.version_info < (3, 7)
 
 
 if USE_DOWNGRADED_TRANSPILED_CODE:
@@ -17,7 +17,7 @@ if USE_DOWNGRADED_TRANSPILED_CODE:
 
     class NoTypingImporter:
         """
-        Meta importer to redirect imports on Py35.
+        Meta importer to redirect imports on Py<3.7.
         """
 
         NO_REDIRECT_NAMES = (

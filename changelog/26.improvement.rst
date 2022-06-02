@@ -1,0 +1,1 @@
+The minimum python for the code base is now 3.7(we still provide support to Py3.5 and Py3.6 by providing a downgraded source, transparent to the user), and the project is now 100% typed, including the test suite.

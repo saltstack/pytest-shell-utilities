@@ -254,16 +254,18 @@ class SubprocessImpl:
                 assert self._terminal_stdout
             self._terminal_stdout.flush()
             self._terminal_stdout.seek(0)
-            if sys.version_info < (3, 6):  # pragma: no cover
-                stdout = self._terminal._translate_newlines(
-                    self._terminal_stdout.read(),
-                    self.factory.system_encoding,
-                )
-            else:
+            _read_stdout = self._terminal_stdout.read()
+            try:
                 stdout = self._terminal._translate_newlines(  # type: ignore[attr-defined]
-                    self._terminal_stdout.read(),
+                    _read_stdout,
                     self.factory.system_encoding,
                     sys.stdout.errors,
+                )
+            except TypeError:
+                # Python < 3.6
+                stdout = self._terminal._translate_newlines(  # type: ignore[attr-defined]
+                    _read_stdout,
+                    self.factory.system_encoding,
                 )
             self._terminal_stdout.close()
 
@@ -272,16 +274,18 @@ class SubprocessImpl:
                 assert self._terminal_stderr
             self._terminal_stderr.flush()
             self._terminal_stderr.seek(0)
-            if sys.version_info < (3, 6):  # pragma: no cover
-                stderr = self._terminal._translate_newlines(
-                    self._terminal_stderr.read(),
-                    self.factory.system_encoding,
-                )
-            else:
+            _read_stderr = self._terminal_stderr.read()
+            try:
                 stderr = self._terminal._translate_newlines(  # type: ignore[attr-defined]
-                    self._terminal_stderr.read(),
+                    _read_stderr,
                     self.factory.system_encoding,
                     sys.stderr.errors,
+                )
+            except TypeError:
+                # Python < 3.6
+                stderr = self._terminal._translate_newlines(  # type: ignore[attr-defined]
+                    _read_stderr,
+                    self.factory.system_encoding,
                 )
             self._terminal_stderr.close()
         try:
@@ -460,7 +464,7 @@ class Subprocess(Factory):
         *args: str,
         env: Optional[EnvironDict] = None,
         _timeout: Optional[Union[int, float]] = None,
-        **kwargs: Any
+        **kwargs: Any,
     ) -> ProcessResult:
         """
         Run the given command synchronously.
@@ -560,7 +564,7 @@ class ScriptSubprocess(Subprocess):
         """
         Returns a human readable name for the factory.
         """
-        return "{}({})".format(self.__class__.__name__, pathlib.Path(self.script_name).name)
+        return f"{self.__class__.__name__}({pathlib.Path(self.script_name).name})"
 
     def get_script_path(self) -> str:
         """
@@ -572,7 +576,7 @@ class ScriptSubprocess(Subprocess):
         else:
             script_path = shutil.which(self.script_name)
         if not script_path or not os.path.exists(script_path):
-            raise FileNotFoundError("The CLI script {!r} does not exist".format(self.script_name))
+            raise FileNotFoundError(f"The CLI script '{self.script_name}' does not exist")
         if TYPE_CHECKING:
             # Make mypy happy
             assert script_path
@@ -723,7 +727,7 @@ class DaemonImpl(SubprocessImpl):
         self,
         *extra_cli_arguments: str,
         max_start_attempts: Optional[int] = None,
-        start_timeout: Optional[Union[int, float]] = None
+        start_timeout: Optional[Union[int, float]] = None,
     ) -> bool:
         """
         Start the daemon.
@@ -1049,7 +1053,7 @@ class Daemon(ScriptSubprocess):
         self,
         *extra_cli_arguments: str,
         max_start_attempts: Optional[int] = None,
-        start_timeout: Optional[Union[int, float]] = None
+        start_timeout: Optional[Union[int, float]] = None,
     ) -> bool:
         """
         Start the daemon.
@@ -1063,7 +1067,7 @@ class Daemon(ScriptSubprocess):
         self,
         *extra_cli_arguments: str,
         max_start_attempts: Optional[int] = None,
-        start_timeout: Optional[Union[int, float]] = None
+        start_timeout: Optional[Union[int, float]] = None,
     ) -> Generator["Daemon", None, None]:
         """
         Start the daemon and return it's instance so it can be used as a context manager.
@@ -1117,7 +1121,7 @@ class Daemon(ScriptSubprocess):
                 assert factory.is_running() is True
         """
         if not self.is_running():
-            raise FactoryNotRunning("{} is not running ".format(self))
+            raise FactoryNotRunning(f"{self} is not running ")
         start_arguments = self.impl.get_start_arguments()
         try:
             if before_stop_callback:
@@ -1183,7 +1187,7 @@ class Daemon(ScriptSubprocess):
         log.debug("%s is running start checks", self)
         while time.time() <= timeout_at:
             if not self.is_running():
-                raise FactoryNotStarted("{} is no longer running".format(self))
+                raise FactoryNotStarted(f"{self} is no longer running")
             if not start_check_callbacks:
                 break
             start_check = start_check_callbacks[0]
@@ -1226,7 +1230,7 @@ class Daemon(ScriptSubprocess):
         checks_start_time = time.time()
         while time.time() <= timeout_at:
             if not self.is_running():
-                raise FactoryNotStarted("{} is no longer running".format(self))
+                raise FactoryNotStarted(f"{self} is no longer running")
             if not check_ports:
                 break
             check_ports -= ports.get_connectable_ports(check_ports)

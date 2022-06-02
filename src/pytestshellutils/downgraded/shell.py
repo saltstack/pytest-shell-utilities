@@ -225,30 +225,28 @@ class SubprocessImpl:
                 assert self._terminal_stdout
             self._terminal_stdout.flush()
             self._terminal_stdout.seek(0)
-            if sys.version_info < (3, 6):
+            _read_stdout = self._terminal_stdout.read()
+            try:
                 stdout = self._terminal._translate_newlines(
-                    self._terminal_stdout.read(), self.factory.system_encoding
+                    _read_stdout, self.factory.system_encoding, sys.stdout.errors
                 )
-            else:
+            except TypeError:
                 stdout = self._terminal._translate_newlines(
-                    self._terminal_stdout.read(),
-                    self.factory.system_encoding,
-                    sys.stdout.errors,
+                    _read_stdout, self.factory.system_encoding
                 )
             self._terminal_stdout.close()
             if TYPE_CHECKING:
                 assert self._terminal_stderr
             self._terminal_stderr.flush()
             self._terminal_stderr.seek(0)
-            if sys.version_info < (3, 6):
+            _read_stderr = self._terminal_stderr.read()
+            try:
                 stderr = self._terminal._translate_newlines(
-                    self._terminal_stderr.read(), self.factory.system_encoding
+                    _read_stderr, self.factory.system_encoding, sys.stderr.errors
                 )
-            else:
+            except TypeError:
                 stderr = self._terminal._translate_newlines(
-                    self._terminal_stderr.read(),
-                    self.factory.system_encoding,
-                    sys.stderr.errors,
+                    _read_stderr, self.factory.system_encoding
                 )
             self._terminal_stderr.close()
         try:
@@ -507,7 +505,7 @@ class ScriptSubprocess(Subprocess):
         """
         Returns a human readable name for the factory.
         """
-        return '{}({})'.format(
+        return '{0}({1})'.format(
             self.__class__.__name__, pathlib.Path(self.script_name).name
         )
 
@@ -522,7 +520,7 @@ class ScriptSubprocess(Subprocess):
             script_path = shutil.which(self.script_name)
         if not script_path or not os.path.exists(script_path):
             raise FileNotFoundError(
-                'The CLI script {!r} does not exist'.format(self.script_name)
+                "The CLI script '{0}' does not exist".format(self.script_name)
             )
         if TYPE_CHECKING:
             assert script_path
@@ -1094,7 +1092,7 @@ class Daemon(ScriptSubprocess):
                 assert factory.is_running() is True
         """
         if not self.is_running():
-            raise FactoryNotRunning('{} is not running '.format(self))
+            raise FactoryNotRunning('{0} is not running '.format(self))
         start_arguments = self.impl.get_start_arguments()
         try:
             if before_stop_callback:
@@ -1157,7 +1155,7 @@ class Daemon(ScriptSubprocess):
         log.debug('%s is running start checks', self)
         while time.time() <= timeout_at:
             if not self.is_running():
-                raise FactoryNotStarted('{} is no longer running'.format(self))
+                raise FactoryNotStarted('{0} is no longer running'.format(self))
             if not start_check_callbacks:
                 break
             start_check = start_check_callbacks[0]
@@ -1201,7 +1199,7 @@ class Daemon(ScriptSubprocess):
         checks_start_time = time.time()
         while time.time() <= timeout_at:
             if not self.is_running():
-                raise FactoryNotStarted('{} is no longer running'.format(self))
+                raise FactoryNotStarted('{0} is no longer running'.format(self))
             if not check_ports:
                 break
             check_ports -= ports.get_connectable_ports(check_ports)

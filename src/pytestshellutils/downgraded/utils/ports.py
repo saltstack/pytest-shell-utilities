@@ -24,7 +24,7 @@ def get_unused_localhost_port(use_cache: bool = False) -> int:
     """
     if not isinstance(use_cache, bool):
         raise pytest.UsageError(
-            "The value of 'use_cache' needs to be an boolean, not {}".format(
+            "The value of 'use_cache' needs to be an boolean, not {0}".format(
                 type(use_cache)
             )
         )

@@ -7,7 +7,7 @@ from unittest import mock
 import pytestshellutils.utils.time
 
 
-def test_sleep():
+def test_sleep() -> None:
     start = time.time()
     with mock.patch("time.sleep", return_value=None):
         time.sleep(1)
