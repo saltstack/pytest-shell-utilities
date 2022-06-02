@@ -16,7 +16,11 @@ from typing import List
 from typing import Optional
 import attr
 import psutil
-from _pytest.pytester import LineMatcher
+
+try:
+    from pytest import LineMatcher
+except ImportError:
+    from _pytest.pytester import LineMatcher
 from pytestshellutils.utils import warn_until
 
 log = logging.getLogger(__name__)
@@ -26,13 +30,13 @@ class MatchString(str):
     """
     Simple subclass around ``str`` which provides a ``.matcher`` property.
 
-    This ``.matcher`` property is an instance of :py:class:`~_pytest.pytester.LineMatcher`
+    This ``.matcher`` property is an instance of :py:class:`~pytest.LineMatcher`
     """
 
     @property
     def matcher(self) -> LineMatcher:
         """
-        Return an instance of :py:class:`~_pytest.pytester.LineMatcher`.
+        Return an instance of :py:class:`~pytest.LineMatcher`.
         """
         return LineMatcher(self.splitlines())
 
@@ -54,23 +58,23 @@ class ProcessResult:
     This class serves the purpose of having a common result class which will hold the
     resulting data from a subprocess command.
 
-    :keyword int returncode:
-        The returncode returned by the process
-    :keyword str stdout:
-        The ``stdout`` returned by the process
-    :keyword str stderr:
-        The ``stderr`` returned by the process
-    :keyword list,tuple cmdline:
-        The command line used to start the process
-    :keyword dict data:
-        The data returned by parsing ``stdout``, when possible.
-    :keyword str data_key:
-        When ``stdout`` can be parsed as JSON, sometimes there's a top level key which is not
-        that interesting. By using ``data_key``, we define that we're actually only interested
-        on the data structure which is keyed by ``data_key``.
+    Keyword Arguments:
+        returncode:
+            The returncode returned by the process
+        stdout:
+            The ``stdout`` returned by the process
+        stderr:
+            The ``stderr`` returned by the process
+        cmdline:
+            The command line used to start the process
+        data:
+            The data returned by parsing ``stdout``, when possible.
+        data_key:
+            When ``stdout`` can be parsed as JSON, sometimes there's a top level key which is not
+            that interesting. By using ``data_key``, we define that we're actually only interested
+            on the data structure which is keyed by ``data_key``.
 
-    .. admonition:: Note
-
+    Note:
         Cast :py:class:`~pytestshellutils.utils.processes.ProcessResult` to a string to pretty-print it.
     """
 
@@ -168,8 +172,12 @@ def collect_child_processes(pid: int) -> List[psutil.Process]:
     """
     Try to collect any started child processes of the provided pid.
 
-    :param int pid:
-        The PID of the process
+    Arguments:
+        pid:
+            The PID of the process
+
+    Returns:
+        List of child processes
     """
     children = None
     try:
@@ -249,12 +257,18 @@ def terminate_process_list(
     """
     Terminate a list of processes.
 
-    :param ~collections.abc.Iterable process_list:
-        An iterable of :py:class:`psutil.Process` instances to terminate
-    :keyword bool kill:
-        Kill the process instead of terminating it.
-    :keyword bool slow_stop:
-        First try to terminate each process in the list, and if termination was not successful, kill it.
+    Arguments:
+        process_list:
+            An iterable of :py:class:`psutil.Process` instances to terminate
+
+    Keyword Arguments:
+        kill:
+            Kill the process instead of terminating it.
+        slow_stop:
+            First try to terminate each process in the list, and if termination was not successful, kill it.
+
+    Returns:
+        Nothing.
     """
 
     def on_process_terminated(proc: psutil.Process) -> None:
@@ -309,16 +323,17 @@ def terminate_process(
     """
     Try to terminate/kill the started process.
 
-    :keyword int pid:
-        The PID of the process
-    :keyword ~psutil.Process process:
-        An instance of :py:class:`psutil.Process`
-    :keyword ~collections.abc.Iterable children:
-        An iterable of :py:class:`psutil.Process` instances, children to the process being terminated
-    :keyword bool kill_children:
-        Also try to terminate/kill child processes
-    :keyword bool slow_stop:
-        First try to terminate each process in the list, and if termination was not successful, kill it.
+    Keyword Arguments:
+        pid:
+            The PID of the process
+        process:
+            An instance of :py:class:`psutil.Process`
+        children:
+            An iterable of :py:class:`psutil.Process` instances, children to the process being terminated
+        kill_children:
+            Also try to terminate/kill child processes
+        slow_stop:
+            First try to terminate each process in the list, and if termination was not successful, kill it.
     """
     children = children or []
     process_list = []

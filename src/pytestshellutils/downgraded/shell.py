@@ -54,10 +54,11 @@ class BaseFactory:
     """
     Base factory class.
 
-    :keyword pathlib.Path cwd:
-        The path to the desired working directory
-    :keyword dict environ:
-        A dictionary of ``key``, ``value`` pairs to add to the environment.
+    Keyword Arguments:
+        cwd:
+            The path to the desired working directory
+        environ:
+            A dictionary of ``key``, ``value`` pairs to add to the environment.
     """
 
     cwd = attr.ib(converter=resolved_pathlib_path)
@@ -83,9 +84,10 @@ class SubprocessImpl:
     """
     Subprocess interaction implementation.
 
-    :keyword ~pytestshellutils.shell.Subprocess factory:
-        The factory instance, either :py:class:`~pytestshellutils.shell.Subprocess` or
-        a sub-class of it.
+    Arguments:
+        factory:
+            The factory instance, either :py:class:`~pytestshellutils.shell.Subprocess` or
+            a sub-class of it.
     """
 
     factory = attr.ib()
@@ -100,8 +102,9 @@ class SubprocessImpl:
         """
         Construct a list of arguments to use when starting the subprocess.
 
-        :param str args:
-            Additional arguments to use when starting the subprocess
+        Arguments:
+            args:
+                Additional arguments to use when starting the subprocess
 
         By default, this method will just call it's factory's ``cmdline()``
         method, but can be overridden.
@@ -118,11 +121,17 @@ class SubprocessImpl:
         an initial listing of child processes which will be used when terminating the
         terminal
 
-        :param list,tuple cmdline:
-            List of strings to pass as ``args`` to :py:class:`~subprocess.Popen`
-        :keyword dict environ:
-            A dictionary of ``key``, ``value`` pairs to add to the
-            py:attr:`pytestshellutils.shell.Factory.environ`.
+        Arguments:
+            cmdline:
+                List of strings to pass as ``args`` to :py:class:`~subprocess.Popen`
+
+        Keyword Arguments:
+            environ:
+                A dictionary of ``key``, ``value`` pairs to add to the
+                :py:attr:`pytestshellutils.shell.Factory.environ`.
+
+        Returns:
+            A :py:class:`~subprocess.Popen` instance.
         """
         environ = self.factory.environ.copy()
         if env is not None:
@@ -164,8 +173,8 @@ class SubprocessImpl:
         """
         Returns true if the sub-process is alive.
 
-        :return: Returns true if the sub-process is alive
-        :rtype: bool
+        Returns:
+            Returns true if the sub-process is alive
         """
         if not self._terminal:
             return False
@@ -174,8 +183,6 @@ class SubprocessImpl:
     def terminate(self) -> ProcessResult:
         """
         Terminate the started subprocess.
-
-        :rtype: ~pytestshellutils.utils.processes.ProcessResult
         """
         return self._terminate()
 
@@ -286,18 +293,19 @@ class Factory(BaseFactory):
     """
     Base shell factory class.
 
-    :keyword bool slow_stop:
-        Whether to terminate the processes by sending a :py:attr:`SIGTERM` signal or by calling
-        :py:meth:`~subprocess.Popen.terminate` on the sub-process.
-        When code coverage is enabled, one will want `slow_stop` set to `True` so that coverage data
-        can be written down to disk.
-    :keyword str system_encoding:
-        The system encoding to use when decoding the subprocess output. Defaults to "utf-8".
-    :keyword int,float timeout:
-        The default maximum amount of seconds that a script should run.
-        This value can be overridden when calling :py:meth:`~pytestshellutils.shell.Process.run` through
-        the ``_timeout`` keyword argument, and, in that case, the timeout value applied would be that
-        of ``_timeout`` instead of ``self.timeout``.
+    Keyword Arguments:
+        slow_stop:
+            Whether to terminate the processes by sending a :py:attr:`SIGTERM` signal or by calling
+            :py:meth:`~subprocess.Popen.terminate` on the sub-process.
+            When code coverage is enabled, one will want `slow_stop` set to `True` so that coverage data
+            can be written down to disk.
+        system_encoding:
+            The system encoding to use when decoding the subprocess output. Defaults to "utf-8".
+        timeout:
+            The default maximum amount of seconds that a script should run.
+            This value can be overridden when calling :py:meth:`~pytestshellutils.shell.Process.run` through
+            the ``_timeout`` keyword argument, and, in that case, the timeout value applied would be that
+            of ``_timeout`` instead of ``self.timeout``.
     """
 
     slow_stop = attr.ib(default=True)
@@ -401,13 +409,16 @@ class Subprocess(Factory):
         """
         Run the given command synchronously.
 
-        :keyword list,tuple args:
-            The list of arguments to pass to :py:meth:`~pytestshellutils.shell.Subprocess.cmdline`
-            to construct the command to run
-        :keyword int.float _timeout:
-            The timeout value for this particular ``run()`` call. If this value is not ``None``,
-            it will be used instead of :py:attr:`~pytestshellutils.shell.Subprocess.timeout`,
-            the default timeout.
+        Keyword Arguments:
+            args:
+                The list of arguments to pass to :py:meth:`~pytestshellutils.shell.Subprocess.cmdline`
+                to construct the command to run
+            env:
+                Pass a dictionary of environment key, value pairs to inject into the subprocess.
+            _timeout:
+                The timeout value for this particular ``run()`` call. If this value is not ``None``,
+                it will be used instead of :py:attr:`~pytestshellutils.shell.Subprocess.timeout`,
+                the default timeout.
         """
         start_time = time.time()
         self.impl._terminal_timeout = _timeout or self.timeout
@@ -453,9 +464,8 @@ class Subprocess(Factory):
         """
         Process the output. When possible JSON is loaded from the output.
 
-        :return:
+        Returns:
             Returns a tuple in the form of ``(stdout, stderr, loaded_json)``
-        :rtype: tuple
         """
         if stdout:
             try:
@@ -477,13 +487,14 @@ class ScriptSubprocess(Subprocess):
     """
     Base CLI script/binary class.
 
-    :keyword str script_name:
-        This is the string containing the name of the binary to call on the subprocess, either the
-        full path to it, or the basename. In case of the basename, the directory containing the
-        basename must be in your ``$PATH`` variable.
-    :keyword list,tuple base_script_args:
-        An list or tuple iterable of the base arguments to use when building the command line to
-        launch the process
+    Keyword Arguments:
+        script_name:
+            This is the string containing the name of the binary to call on the subprocess, either the
+            full path to it, or the basename. In case of the basename, the directory containing the
+            basename must be in your ``$PATH`` variable.
+        base_script_args:
+            An list or tuple iterable of the base arguments to use when building the command line to
+            launch the process
 
     Please look at :py:class:`~pytestshellutils.shell.Factory` for the additional supported keyword
     arguments documentation.
@@ -533,10 +544,9 @@ class ScriptSubprocess(Subprocess):
         """
         Construct a list of arguments to use when starting the subprocess.
 
-        :param str args:
-            Additional arguments to use when starting the subprocess
-
-        :rtype: list
+        Arguments:
+            args:
+                Additional arguments to use when starting the subprocess
         """
         return (
             [self.get_script_path()]
@@ -553,10 +563,11 @@ class StartDaemonCallArguments:
 
     It's used when restarting the daemon so that the same call is used.
 
-    :keyword list,tuple args:
-        List of arguments
-    :keyword dict kwargs:
-        Dictionary of keyword arguments
+    Keyword Arguments:
+        args:
+            List of arguments
+        kwargs:
+            Dictionary of keyword arguments
     """
 
     args = attr.ib()
@@ -585,12 +596,18 @@ class DaemonImpl(SubprocessImpl):
         """
         Register a function callback to run before the daemon starts.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self._before_start_callbacks.append(
             Callback(func=callback, args=args, kwargs=kwargs)
@@ -602,12 +619,18 @@ class DaemonImpl(SubprocessImpl):
         """
         Register a function callback to run after the daemon starts.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self._after_start_callbacks.append(
             Callback(func=callback, args=args, kwargs=kwargs)
@@ -619,12 +642,18 @@ class DaemonImpl(SubprocessImpl):
         """
         Register a function callback to run before the daemon terminates.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self._before_terminate_callbacks.append(
             Callback(func=callback, args=args, kwargs=kwargs)
@@ -636,12 +665,18 @@ class DaemonImpl(SubprocessImpl):
         """
         Register a function callback to run after the daemon terminates.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self._after_terminate_callbacks.append(
             Callback(func=callback, args=args, kwargs=kwargs)
@@ -656,12 +691,16 @@ class DaemonImpl(SubprocessImpl):
         """
         Start the daemon.
 
-        :keyword tuple extra_cli_arguments:
-            Extra arguments to pass to the CLI that starts the daemon
-        :keyword int max_start_attempts:
-            Maximum number of attempts to try and start the daemon in case of failures
-        :keyword int,float start_timeout:
-            The maximum number of seconds to wait before considering that the daemon did not start
+        Keyword Arguments:
+            extra_cli_arguments:
+                Extra arguments to pass to the CLI that starts the daemon
+            max_start_attempts:
+                Maximum number of attempts to try and start the daemon in case of failures
+            start_timeout:
+                The maximum number of seconds to wait before considering that the daemon did not start
+
+        Returns:
+            bool: A boolean indicating if the start was successful or not.
         """
         if self.is_running():
             log.warning('%s is already running.', self)
@@ -791,8 +830,6 @@ class DaemonImpl(SubprocessImpl):
     def get_start_arguments(self) -> StartDaemonCallArguments:
         """
         Return the arguments and keyword arguments used when starting the daemon.
-
-        :rtype: StartDaemonCallArguments
         """
         return self._start_args_and_kwargs
 
@@ -802,14 +839,15 @@ class Daemon(ScriptSubprocess):
     """
     Base daemon factory.
 
-    :keyword list check_ports:
-        List of ports to try and connect to while confirming that the daemon is up and running
-    :keyword tuple, extra_cli_arguments_after_first_start_failure:
-        Extra arguments to pass to the CLI that starts the daemon after the first failure
-    :keyword int max_start_attempts:
-        Maximum number of attempts to try and start the daemon in case of failures
-    :keyword int start_timeout:
-        The maximum number of seconds to wait before considering that the daemon did not start
+    Keyword Arguments:
+        check_ports:
+            List of ports to try and connect to while confirming that the daemon is up and running
+        extra_cli_arguments_after_first_start_failure:
+            Extra arguments to pass to the CLI that starts the daemon after the first failure
+        max_start_attempts:
+            Maximum number of attempts to try and start the daemon in case of failures
+        start_timeout:
+            The maximum number of seconds to wait before considering that the daemon did not start
 
     Please look at :py:class:`~pytestshellutils.shell.Subprocess` for the additional supported keyword
     arguments documentation.
@@ -852,12 +890,18 @@ class Daemon(ScriptSubprocess):
         """
         Register a function callback to run before the daemon starts.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self.impl.before_start(callback, *args, **kwargs)
 
@@ -867,12 +911,18 @@ class Daemon(ScriptSubprocess):
         """
         Register a function callback to run after the daemon starts.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self.impl.after_start(callback, *args, **kwargs)
 
@@ -882,12 +932,18 @@ class Daemon(ScriptSubprocess):
         """
         Register a function callback to run before the daemon terminates.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self.impl.before_terminate(callback, *args, **kwargs)
 
@@ -897,12 +953,18 @@ class Daemon(ScriptSubprocess):
         """
         Register a function callback to run after the daemon terminates.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Arguments:
+            callback:
+                The function to call back
+
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
+
+        Returns:
+            Nothing.
         """
         self.impl.after_terminate(callback, *args, **kwargs)
 
@@ -916,26 +978,31 @@ class Daemon(ScriptSubprocess):
         The callback must stop trying to confirm running behavior once ``time.time() > timeout_at``.
         The callback should return ``True`` to confirm that the daemon is ready for work.
 
-        For example:
+        Arguments:
+            callback:
+                The function to call back
 
-        .. code-block:: python
+        Keyword Arguments:
+            args:
+                The arguments to pass to the callback
+            kwargs:
+                The keyword arguments to pass to the callback
 
-            def check_running_state(timeout_at: float) -> bool
-                while time.time() <= timeout_at:
-                    # run some checks
-                    ...
-                    # if all is good
-                    break
-                else:
-                    return False
-                return True
+        Returns:
+            Nothing.
 
-        :param ~collections.abc.Callable callback:
-            The function to call back
-        :keyword args:
-            The arguments to pass to the callback
-        :keyword kwargs:
-            The keyword arguments to pass to the callback
+        Example:
+            .. code-block:: python
+
+                def check_running_state(timeout_at: float) -> bool:
+                    while time.time() <= timeout_at:
+                        # run some checks
+                        ...
+                        # if all is good
+                        break
+                    else:
+                        return False
+                    return True
         """
         self._start_checks_callbacks.append(
             Callback(func=callback, args=args, kwargs=kwargs)
@@ -999,32 +1066,32 @@ class Daemon(ScriptSubprocess):
         """
         Stop the daemon and return it's instance so it can be used as a context manager.
 
-        :keyword ~collections.abc.Callable before_stop_callback:
-            A callable to run before stopping the daemon. The callback must accept one argument,
-            the daemon instance.
-        :keyword ~collections.abc.Callable after_stop_callback:
-            A callable to run after stopping the daemon. The callback must accept one argument,
-            the daemon instance.
-        :keyword ~collections.abc.Callable before_start_callback:
-            A callable to run before starting the daemon. The callback must accept one argument,
-            the daemon instance.
-        :keyword ~collections.abc.Callable after_start_callback:
-            A callable to run after starting the daemon. The callback must accept one argument,
-            the daemon instance.
+        Keyword Arguments:
+            before_stop_callback:
+                A callable to run before stopping the daemon. The callback must accept one argument,
+                the daemon instance.
+            after_stop_callback:
+                A callable to run after stopping the daemon. The callback must accept one argument,
+                the daemon instance.
+            before_start_callback:
+                A callable to run before starting the daemon. The callback must accept one argument,
+                the daemon instance.
+            after_start_callback:
+                A callable to run after starting the daemon. The callback must accept one argument,
+                the daemon instance.
 
         This context manager will stop the factory while the context is in place, it re-starts it once out of
         context.
 
-        For example:
+        Example:
+            .. code-block:: python
 
-        .. code-block:: python
+                assert factory.is_running() is True
 
-            assert factory.is_running() is True
+                with factory.stopped():
+                    assert factory.is_running() is False
 
-            with factory.stopped():
-                assert factory.is_running() is False
-
-            assert factory.is_running() is True
+                assert factory.is_running() is True
         """
         if not self.is_running():
             raise FactoryNotRunning('{} is not running '.format(self))

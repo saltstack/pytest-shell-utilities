@@ -3,7 +3,7 @@
 #
 # pylint: disable=wildcard-import,unused-wildcard-import
 """
-Namespace the standard library ``socket`` module.
+Namespace the standard library :py:mod:`socket` module.
 
 This module's sole purpose is to have the standard library :py:mod:`socket` module functions under a different
 namespace to be used in pytest-shell-utilities so that projects using it, which need to mock :py:mod:`socket` functions,

@@ -19,8 +19,9 @@ def get_unused_localhost_port(use_cache: bool = False) -> int:
     """
     Return a random unused port on localhost.
 
-    :keyword bool use_cache:
-        If ``use_cache`` is ``True``, consecutive calls to this function will never return the cached port.
+    Keyword Arguments:
+        use_cache:
+            If ``use_cache`` is ``True``, consecutive calls to this function will never return the cached port.
     """
     if not isinstance(use_cache, bool):
         raise pytest.UsageError(
@@ -47,9 +48,11 @@ def get_connectable_ports(ports: Iterable[int]) -> Set[int]:
     """
     Given a list of ports, returns those that we can connect to.
 
-    :param ~collections.abc.Iterable ports: An iterable of ports to try and connect to
-    :rtype: set
-    :return: Returns a set of the ports where connection was successful
+    Arguments:
+        ports: An iterable of ports to try and connect to
+
+    Returns:
+        set: Returns a set of the ports where connection was successful
     """
     connectable_ports = set()
     check_ports = set(ports)
