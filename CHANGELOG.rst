@@ -13,6 +13,15 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.6.0 (2022-07-28)
+==================================
+
+Improvements
+------------
+
+- The ``shell`` fixture is now ``session`` scoped (`#29 <https://github.com/saltstack/pytest-shell-utilities/issues/29>`_)
+
+
 shell-utilities 1.5.0 (2022-06-02)
 ==================================
 

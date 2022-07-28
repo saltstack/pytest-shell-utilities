@@ -1,1 +1,0 @@
-The ``shell`` fixture is now ``session`` scoped
