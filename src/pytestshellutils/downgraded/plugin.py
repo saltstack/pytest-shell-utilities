@@ -9,7 +9,7 @@ import pytest
 from pytestshellutils.shell import Subprocess
 
 
-@pytest.fixture
+@pytest.fixture(scope='session')
 def shell() -> Subprocess:
     """
     Shell fixture.
