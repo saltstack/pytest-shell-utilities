@@ -112,7 +112,10 @@ class SubprocessImpl:
         return self.factory.cmdline(*args)
 
     def init_terminal(
-        self, cmdline: List[str], env: Optional[EnvironDict] = None
+        self,
+        cmdline: List[str],
+        env: Optional[EnvironDict] = None,
+        cwd: Optional[Union[str, pathlib.Path]] = None,
     ) -> 'subprocess.Popen[Any]':
         """
         Instantiate a terminal with the passed command line(``cmdline``) and return it.
@@ -126,9 +129,11 @@ class SubprocessImpl:
                 List of strings to pass as ``args`` to :py:class:`~subprocess.Popen`
 
         Keyword Arguments:
-            environ:
+            env:
                 A dictionary of ``key``, ``value`` pairs to add to the
                 :py:attr:`pytestshellutils.shell.Factory.environ`.
+            cwd:
+                A path for the CWD when running the process.
 
         Returns:
             A :py:class:`~subprocess.Popen` instance.
@@ -150,7 +155,7 @@ class SubprocessImpl:
             stdout=self._terminal_stdout,
             stderr=self._terminal_stderr,
             shell=False,
-            cwd=str(self.factory.cwd),
+            cwd=str(cwd or self.factory.cwd),
             universal_newlines=True,
             close_fds=close_fds,
             env=environ,
@@ -274,16 +279,37 @@ class SubprocessImpl:
         return self._terminal.pid
 
     def run(
-        self, *args: str, env: Optional[EnvironDict] = None, **kwargs: Any
+        self,
+        *args: str,
+        env: Optional[EnvironDict] = None,
+        cwd: Optional[Union[str, pathlib.Path]] = None,
+        **kwargs: Any
     ) -> 'subprocess.Popen[Any]':
         """
         Run the given command synchronously.
+
+        Arguments:
+            args:
+                The command to run.
+
+        Keyword Arguments:
+            env:
+                A dictionary of ``key``, ``value`` pairs to add to the
+                :py:attr:`pytestshellutils.shell.Factory.environ`.
+            cwd:
+                A path for the CWD when running the process.
+
+        Returns:
+            A :py:class:`~subprocess.Popen` instance.
         """
         cmdline = self.cmdline(*args, **kwargs)
         log.info(
-            '%s is running %r in CWD: %s ...', self.factory, cmdline, self.factory.cwd
+            '%s is running %r in CWD: %s ...',
+            self.factory,
+            cmdline,
+            cwd or self.factory.cwd,
         )
-        return self.init_terminal(cmdline, env=env)
+        return self.init_terminal(cmdline, env=env, cwd=cwd)
 
 
 @attr.s(slots=True, kw_only=True)
