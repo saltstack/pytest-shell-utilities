@@ -2,7 +2,9 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 import os
+import pathlib
 import sys
+import tempfile
 from typing import Any
 from typing import cast
 
@@ -209,3 +211,20 @@ def test_display_name(tempfiles: Tempfiles) -> None:
     result = shell.run(sys.executable, script)
     assert result.returncode == 0
     assert shell.get_display_name() == "Subprocess([{!r}, {!r}])".format(sys.executable, script)
+
+
+def test_run_cwd(tmp_path: str, tempfiles: Tempfiles, shell: Subprocess) -> None:
+    shell = Subprocess(cwd=tmp_path)
+    system_tempdir = str(pathlib.Path(tempfile.gettempdir()).resolve())
+    assert str(shell.cwd.resolve()) != system_tempdir
+    script = tempfiles.makepyfile(
+        """
+        # coding=utf-8
+        import pathlib
+        print(str(pathlib.Path.cwd().resolve()), flush=True)
+        exit(0)
+        """
+    )
+    result = shell.run(sys.executable, script, cwd=system_tempdir)
+    assert result.returncode == 0
+    assert result.stdout.strip() == system_tempdir
