@@ -13,6 +13,22 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.7.0 (2022-09-23)
+==================================
+
+Bug Fixes
+---------
+
+- ``Subprocess.run()`` now accepts ``shell`` keyword argument like ``subprocess.Popen``. (`#32 <https://github.com/saltstack/pytest-shell-utilities/issues/32>`_)
+- The `Subprocess.run()` method can now override the `cwd` (`#33 <https://github.com/saltstack/pytest-shell-utilities/issues/33>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Update pre-commit hook versions (`#34 <https://github.com/saltstack/pytest-shell-utilities/issues/34>`_)
+
+
 shell-utilities 1.6.0 (2022-07-28)
 ==================================
 
