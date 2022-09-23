@@ -114,6 +114,7 @@ class SubprocessImpl:
     def init_terminal(
         self,
         cmdline: List[str],
+        shell: bool = False,
         env: Optional[EnvironDict] = None,
         cwd: Optional[Union[str, pathlib.Path]] = None,
     ) -> 'subprocess.Popen[Any]':
@@ -129,6 +130,8 @@ class SubprocessImpl:
                 List of strings to pass as ``args`` to :py:class:`~subprocess.Popen`
 
         Keyword Arguments:
+            shell:
+                Pass the value of ``shell`` to :py:class:`~subprocess.Popen`
             env:
                 A dictionary of ``key``, ``value`` pairs to add to the
                 :py:attr:`pytestshellutils.shell.Factory.environ`.
@@ -154,7 +157,7 @@ class SubprocessImpl:
             cmdline,
             stdout=self._terminal_stdout,
             stderr=self._terminal_stderr,
-            shell=False,
+            shell=shell,
             cwd=str(cwd or self.factory.cwd),
             universal_newlines=True,
             close_fds=close_fds,
@@ -281,6 +284,7 @@ class SubprocessImpl:
     def run(
         self,
         *args: str,
+        shell: bool = False,
         env: Optional[EnvironDict] = None,
         cwd: Optional[Union[str, pathlib.Path]] = None,
         **kwargs: Any
@@ -293,6 +297,9 @@ class SubprocessImpl:
                 The command to run.
 
         Keyword Arguments:
+            shell:
+                Pass the value of `shell` to
+                :py:meth:`pytestshellutils.shell.Factory.init_terminal`
             env:
                 A dictionary of ``key``, ``value`` pairs to add to the
                 :py:attr:`pytestshellutils.shell.Factory.environ`.
@@ -309,7 +316,7 @@ class SubprocessImpl:
             cmdline,
             cwd or self.factory.cwd,
         )
-        return self.init_terminal(cmdline, env=env, cwd=cwd)
+        return self.init_terminal(cmdline, shell=shell, env=env, cwd=cwd)
 
 
 @attr.s(slots=True, kw_only=True)

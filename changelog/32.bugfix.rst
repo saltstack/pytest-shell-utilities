@@ -1,0 +1,1 @@
+``Subprocess.run()`` now accepts ``shell`` keyword argument like ``subprocess.Popen``.

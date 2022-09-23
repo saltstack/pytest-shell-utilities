@@ -47,3 +47,8 @@ title_format = "shell-utilities {version} ({project_date})"
   directory = "trivial"
   name = "Trivial/Internal Changes"
   showcontent = true
+
+[tool.bandit]
+exclude = [
+  "src/pytestshellutils/downgraded/shell.py"
+]

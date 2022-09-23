@@ -5,6 +5,8 @@ import pathlib
 import sys
 import tempfile
 
+import pytest
+
 from pytestshellutils.shell import Subprocess
 from tests.conftest import Tempfiles
 
@@ -37,3 +39,12 @@ def test_run_cwd(tempfiles: Tempfiles, shell: Subprocess) -> None:
     result = shell.run(sys.executable, script, cwd=system_tempdir)
     assert result.returncode == 0
     assert result.stdout.strip() == system_tempdir
+
+
+def test_run_shell(shell: Subprocess) -> None:
+    with pytest.raises(FileNotFoundError):
+        shell.run("exit", "0")
+    with pytest.raises(FileNotFoundError):
+        shell.run("exit", "0", shell=False)
+    result = shell.run("exit", "0", shell=True)
+    assert result.returncode == 0
