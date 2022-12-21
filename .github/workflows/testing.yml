@@ -6,18 +6,18 @@ jobs:
   Pre-Commit:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: 3.9
     - name: Set Cache Key
       run: echo "PY=$(python --version --version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
     - name: Install System Deps
       run: |
         sudo apt-get update
         sudo apt-get install -y libxml2 libxml2-dev libxslt-dev
-    - uses: actions/cache@v1
+    - uses: actions/cache@v3
       with:
         path: ~/.cache/pre-commit
         key: pre-commit|${{ env.PY }}|${{ hashFiles('.pre-commit-config.yaml') }}
@@ -28,11 +28,11 @@ jobs:
     needs: Pre-Commit
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Setup Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
-        python-version: '3.8'
+        python-version: 3.9
     - name: Install Nox
       run: |
         python -m pip install --upgrade pip
@@ -49,12 +49,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - name: Set up Python 3.7 For Nox
-      uses: actions/setup-python@v2
+    - name: Set up Python 3.9 For Nox
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: 3.9
 
     - name: Install Nox
       run: |
@@ -78,12 +78,12 @@ jobs:
     timeout-minutes: 10
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    - name: Set up Python 3.7 For Nox
-      uses: actions/setup-python@v2
+    - name: Set up Python 3.9 For Nox
+      uses: actions/setup-python@v4
       with:
-        python-version: 3.7
+        python-version: 3.9
 
     - name: Install Nox
       run: |
@@ -120,10 +120,10 @@ jobs:
           - "~=7.2.0"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -148,18 +148,18 @@ jobs:
       if: always()
       id: codecov-info
       run: |
-        echo ::set-output name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))")
-        echo ::set-output name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))")
-        echo ::set-output name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))")
-        echo ::set-output name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/codecov-linux')")
-        echo ::set-output name=uploader-name::$(python -c "print('codecov-linux')")
+        echo name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
+        echo name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
+        echo name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
+        echo name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/codecov-linux')") >> $GITHUB_OUTPUT
+        echo name=uploader-name::$(python -c "print('codecov-linux')") >> $GITHUB_OUTPUT
 
     - name: Create CodeCov Flags
       if: always()
       id: codecov
       run: |
-        echo ::set-output name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))")
-        echo ::set-output name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))")
+        echo name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
 
     - name: Download Code Coverage Tool
       if: always()
@@ -291,10 +291,10 @@ jobs:
           - "~=7.2.0"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -324,18 +324,18 @@ jobs:
       id: codecov-info
       shell: bash
       run: |
-        echo ::set-output name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))")
-        echo ::set-output name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))")
-        echo ::set-output name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))")
-        echo ::set-output name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/windows/codecov.exe')")
-        echo ::set-output name=uploader-name::$(python -c "print('codecov.exe')")
+        echo name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
+        echo name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
+        echo name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
+        echo name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/windows/codecov.exe')") >> $GITHUB_OUTPUT
+        echo name=uploader-name::$(python -c "print('codecov.exe')") >> $GITHUB_OUTPUT
 
     - name: Create CodeCov Flags
       if: always()
       id: codecov
       run: |
-        echo ::set-output name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))")
-        echo ::set-output name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))")
+        echo name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
 
 
     - name: Download Code Coverage Tool
@@ -431,10 +431,10 @@ jobs:
           - "~=7.2.0"
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
 
@@ -459,18 +459,18 @@ jobs:
       if: always()
       id: codecov-info
       run: |
-        echo ::set-output name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))")
-        echo ::set-output name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))")
-        echo ::set-output name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))")
-        echo ::set-output name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/codecov-macos')")
-        echo ::set-output name=uploader-name::$(python -c "print('codecov-macos')")
+        echo name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
+        echo name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
+        echo name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
+        echo name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/codecov-macos')") >> $GITHUB_OUTPUT
+        echo name=uploader-name::$(python -c "print('codecov-macos')") >> $GITHUB_OUTPUT
 
     - name: Create CodeCov Flags
       if: always()
       id: codecov
       run: |
-        echo ::set-output name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))")
-        echo ::set-output name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))")
+        echo name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
 
     - name: Download Code Coverage Tool
       if: always()
@@ -577,7 +577,7 @@ jobs:
 
     - name: Upload Logs
       if: always()
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3
       with:
         name: runtests-${{ steps.codecov.outputs.report-name }}.log
         path: artifacts/runtests-*.log
@@ -593,11 +593,11 @@ jobs:
       - Windows
       - macOS
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: 3.9
     - name: Install Nox
