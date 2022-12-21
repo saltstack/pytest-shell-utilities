@@ -2,7 +2,7 @@
 minimum_pre_commit_version: 2.9.2
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v4.4.0
     hooks:
       - id: check-merge-conflict  # Check for files that contain merge conflict strings.
       - id: trailing-whitespace
@@ -45,7 +45,7 @@ repos:
       - id: remove-import-headers
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.0
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         name: Rewrite Code to be Py3.5+
@@ -55,7 +55,7 @@ repos:
         files: ^((setup|noxfile|tests/.*|src/pytestshellutils/__init__)\.py)$
 
   - repo: https://github.com/asottile/pyupgrade
-    rev: v2.38.0
+    rev: v3.3.1
     hooks:
       - id: pyupgrade
         name: Rewrite Code to be Py3.7+
@@ -63,23 +63,23 @@ repos:
           --py37-plus
         ]
         files: ^(src/.*\.py)$
-        exclude: ^src/pytestshellutils/(__init__|version|downgraded/.*)\.py$
+        exclude: ^src/pytestshellutils/(__init__|version)\.py$
 
   - repo: https://github.com/asottile/reorder_python_imports
-    rev: v3.8.2
+    rev: v3.9.0
     hooks:
       - id: reorder-python-imports
         args:
           - --py37-plus
           - --application-directories=.:src
-        exclude: ^src/pytestshellutils/(version.py|downgraded/.*)$
+        exclude: ^src/pytestshellutils/version\.py$
 
   - repo: https://github.com/psf/black
-    rev: 22.8.0
+    rev: 22.12.0
     hooks:
       - id: black
         args: [-l 100]
-        exclude: ^src/pytestshellutils/(version.py|downgraded/.*)$
+        exclude: ^src/pytestshellutils/version\.py$
 
   - repo: https://github.com/asottile/blacken-docs
     rev: v1.12.1
@@ -87,24 +87,8 @@ repos:
       - id: blacken-docs
         args: [--skip-errors]
         files: ^(.*\.rst|docs/.*\.rst|src/pytestshellutils/.*\.py)$
-        exclude: ^src/pytestshellutils/downgraded/.*$
         additional_dependencies: [black==22.8.0]
   # <---- Formatting -------------------------------------------------------------------------------------------------
-
-  # ----- Remove Typing - Py3.5 Support  ---------------------------------------------------------------------------->
-  - repo: https://github.com/s0undt3ch/downgrade-source
-    rev: v3.0.0
-    hooks:
-      - id: downgrade-source
-        name: Downgrade source code into a separate package to support Py3.5
-        files: ^src/.*\.py$
-        exclude: ^src/pytestshellutils/((__init__|version)\.py|downgraded/.*\.py)$
-        args:
-          - --target-version=3.5
-          - --pkg-path=src/pytestshellutils
-          - --skip-checker=nounusableimports
-          - --skip-checker=nostarimports
-  # <---- Remove Typing - Py3.5 Support  -----------------------------------------------------------------------------
 
   # ----- Security -------------------------------------------------------------------------------------------------->
   - repo: https://github.com/PyCQA/bandit
@@ -115,7 +99,7 @@ repos:
         name: Run bandit against the code base
         args: [--silent, -lll, --skip, B701]
         files: ^(?!tests/).*\.py$
-        exclude: ^src/pytestshellutils/(version|downgraded/shell)\.py$
+        exclude: ^src/pytestshellutils/version\.py$
   - repo: https://github.com/PyCQA/bandit
     rev: "1.7.4"
     hooks:
@@ -128,10 +112,10 @@ repos:
 
   # ----- Code Analysis --------------------------------------------------------------------------------------------->
   - repo: https://github.com/pycqa/flake8
-    rev: '5.0.4'
+    rev: '6.0.0'
     hooks:
       - id: flake8
-        exclude: ^(src/pytestshellutils/(downgraded/.*|version\.py)|\.pre-commit-hooks/.*\.py)$
+        exclude: ^(src/pytestshellutils/version\.py|\.pre-commit-hooks/.*\.py)$
         additional_dependencies:
         - flake8-mypy-fork
         - pydocstyle>=4.0.0
@@ -140,11 +124,11 @@ repos:
         - flake8-typing-imports
 
   - repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.971
+    rev: v0.991
     hooks:
       - id: mypy
         files: ^((src|tests)/.*\.py)$
-        exclude: ^(src/pytestshellutils/(downgraded/.*|utils/(socket|time)\.py))$
+        exclude: ^(src/pytestshellutils/(utils/(socket|time)\.py))$
         args: [--strict]
         additional_dependencies:
           - attrs
