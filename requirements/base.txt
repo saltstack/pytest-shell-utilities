@@ -1,5 +1,5 @@
 pytest>=7.1.0
-attrs>=19.2.0
+attrs>=22.1.0
 psutil>=5.0.0
 typing-extensions
 pytest-helpers-namespace
