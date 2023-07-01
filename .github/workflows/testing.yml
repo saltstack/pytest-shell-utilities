@@ -115,9 +115,12 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
+          - "3.11"
         pytest-version:
           - "~=7.1.0"
           - "~=7.2.0"
+          - "~=7.3.0"
+          - "~=7.4.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -286,9 +289,12 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
+          - "3.11"
         pytest-version:
           - "~=7.1.0"
           - "~=7.2.0"
+          - "~=7.3.0"
+          - "~=7.4.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -426,9 +432,12 @@ jobs:
           - "3.8"
           - "3.9"
           - "3.10"
+          - "3.11"
         pytest-version:
           - "~=7.1.0"
           - "~=7.2.0"
+          - "~=7.3.0"
+          - "~=7.4.0"
 
     steps:
     - uses: actions/checkout@v3
