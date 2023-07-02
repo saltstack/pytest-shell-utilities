@@ -12,7 +12,7 @@ jobs:
       with:
         python-version: 3.9
     - name: Set Cache Key
-      run: echo "PY=$(python --version --version | sha256sum | cut -d' ' -f1)" >> $GITHUB_ENV
+      run: echo "PY=$(python --version --version | sha256sum | cut -d' ' -f1)" >> "$GITHUB_ENV"
     - name: Install System Deps
       run: |
         sudo apt-get update
@@ -117,10 +117,10 @@ jobs:
           - "3.10"
           - "3.11"
         pytest-version:
-          - "~=7.1.0"
-          - "~=7.2.0"
-          - "~=7.3.0"
-          - "~=7.4.0"
+          - "7.1.0"
+          - "7.2.0"
+          - "7.3.0"
+          - "7.4.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -133,11 +133,11 @@ jobs:
     - name: Install Nox
       run: |
         python -m pip install --upgrade pip
-        pip install nox 'pytest${{ matrix.pytest-version }}'
+        pip install nox
 
     - name: Install Test Requirements
       env:
-        PYTEST_VERSION_REQUIREMENT: pytest${{ matrix.pytest-version }}
+        PYTEST_VERSION_REQUIREMENT: pytest~=${{ matrix.pytest-version }}
       run: |
         nox --force-color -e tests-3 --install-only
 
@@ -147,134 +147,33 @@ jobs:
       run: |
         nox --force-color -e tests-3 -- -vv tests/
 
-    - name: Gather CodeCov Info
-      if: always()
-      id: codecov-info
-      run: |
-        echo flag-python-version=$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
-        echo flag-pytest-version=$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
-        echo flag-runner-os=$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
-        echo uploader-url=$(python -c "print('https://uploader.codecov.io/latest/codecov-linux')") >> $GITHUB_OUTPUT
-        echo uploader-name=$(python -c "print('codecov-linux')") >> $GITHUB_OUTPUT
+    - name: Upload Tests coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: artifacts/
+        fail_ci_if_error: false
+        files: coverage-tests.xml
+        flags: tests,${{ runner.os }},Py${{ matrix.python-version}},PyTest${{ matrix.pytest-version }}
+        name: tests-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}
+        verbose: true
 
-    - name: Create CodeCov Flags
-      if: always()
-      id: codecov
-      run: |
-        echo flags=$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-        echo report-name=$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-
-    - name: Download Code Coverage Tool
-      if: always()
-      shell: bash
-      run: |
-        if [ "$(which curl)x" == "x" ]; then
-            echo "Failed to find the 'curl' binary"
-            exit 0
-        fi
-
-        if [ "$(which gpg)x" == "x" ]; then
-            echo "Failed to find the 'gpg' binary"
-            exit 0
-        fi
-
-        if [ "$(which shasum)x" == "x" ]; then
-            echo "Failed to find the 'shasum' binary"
-            exit 0
-        fi
-
-        echo "Uploader URL: ${{ steps.codecov-info.outputs.uploader-url }}"
-        echo "Uploader Name: ${{ steps.codecov-info.outputs.uploader-name }}"
-
-        if [ ! -x codecov-linux ]; then
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L ${{ steps.codecov-info.outputs.uploader-url }} --output ${{ steps.codecov-info.outputs.uploader-name }}; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L ${{ steps.codecov-info.outputs.uploader-url }}.SHA256SUM --output ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L ${{ steps.codecov-info.outputs.uploader-url }}.SHA256SUM.sig --output ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM.sig; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --import; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            gpg --verify ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM.sig ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM && \
-                shasum -a 256 -c ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM && \
-                chmod +x ${{ steps.codecov-info.outputs.uploader-name }} || exit 0
-        fi
-
-    - name: Upload Project Code Coverage
-      if: always()
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        REPORT_FLAGS: ${{ steps.codecov-flags.outputs.flags }},src
-        REPORT_NAME: ${{ runner.os }}-Py${{ matrix.python-version }}-src
-        REPORT_PATH: artifacts/coverage-project.xml
-      run: |
-        if [ -x ${{ steps.codecov-info.outputs.uploader-name }} ]; then
-          n=0
-          until [ "$n" -ge 5 ]
-          do
-            if ./${{ steps.codecov-info.outputs.uploader-name }} -R $(pwd) -n "${REPORT_NAME}" -f "${REPORT_PATH}" -F "${REPORT_FLAGS}"; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-          done
-        fi
-
-    - name: Upload Tests Code Coverage
-      if: always()
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        REPORT_FLAGS: ${{ steps.codecov-flags.outputs.flags }},tests
-        REPORT_NAME: ${{ runner.os }}-Py${{ matrix.python-version }}-tests
-        REPORT_PATH: artifacts/coverage-tests.xml
-      run: |
-        if [ -x ${{ steps.codecov-info.outputs.uploader-name }} ]; then
-          n=0
-          until [ "$n" -ge 5 ]
-          do
-            if ./${{ steps.codecov-info.outputs.uploader-name }} -R $(pwd) -n "${REPORT_NAME}" -f "${REPORT_PATH}" -F "${REPORT_FLAGS}"; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-          done
-        fi
+    - name: Upload Project coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: artifacts/
+        fail_ci_if_error: false
+        files: coverage-project.xml
+        flags: src,${{ runner.os }},Py${{ matrix.python-version}},PyTest${{ matrix.pytest-version }}
+        name: src-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}
+        verbose: true
 
     - name: Upload Logs
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: runtests-${{ steps.codecov.outputs.report-name }}.log
+        name: runtests-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}.log
         path: artifacts/runtests-*.log
 
   Windows:
@@ -294,10 +193,10 @@ jobs:
           - "3.10"
           - "3.11"
         pytest-version:
-          - "~=7.1.0"
-          - "~=7.2.0"
-          - "~=7.3.0"
-          - "~=7.4.0"
+          - "7.1.0"
+          - "7.2.0"
+          - "7.3.0"
+          - "7.4.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -310,12 +209,12 @@ jobs:
     - name: Install Nox
       run: |
         python -m pip install --upgrade pip
-        pip install nox 'pytest${{ matrix.pytest-version }}'
+        pip install nox
 
     - name: Install Test Requirements
       shell: bash
       env:
-        PYTEST_VERSION_REQUIREMENT: pytest${{ matrix.pytest-version }}
+        PYTEST_VERSION_REQUIREMENT: pytest~=${{ matrix.pytest-version }}
       run: |
         export PATH="/C/Program Files (x86)/Windows Kits/10/bin/10.0.18362.0/x64;$PATH"
         nox --force-color -e tests-3 --install-only
@@ -328,96 +227,33 @@ jobs:
         export PATH="/C/Program Files (x86)/Windows Kits/10/bin/10.0.18362.0/x64;$PATH"
         nox --force-color -e tests-3 -- -vv tests/
 
-    - name: Gather CodeCov Info
-      if: always()
-      id: codecov-info
-      shell: bash
-      run: |
-        echo flag-python-version=$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
-        echo flag-pytest-version=$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
-        echo flag-runner-os=$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
-        echo uploader-url=$(python -c "print('https://uploader.codecov.io/latest/windows/codecov.exe')") >> $GITHUB_OUTPUT
-        echo uploader-name=$(python -c "print('codecov.exe')") >> $GITHUB_OUTPUT
+    - name: Upload Tests coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: artifacts/
+        fail_ci_if_error: false
+        files: coverage-tests.xml
+        flags: tests,${{ runner.os }},Py${{ matrix.python-version}},PyTest${{ matrix.pytest-version }}
+        name: tests-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}
+        verbose: true
 
-    - name: Create CodeCov Flags
-      if: always()
-      id: codecov
-      run: |
-        echo flags=$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-        echo report-name=$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-
-
-    - name: Download Code Coverage Tool
-      if: always()
-      shell: powershell
-      run: |
-        If (-not(Test-Path -Path ./${{ steps.codecov-info.outputs.uploader-name }})) {
-          [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls, [Net.SecurityProtocolType]::Tls11, [Net.SecurityProtocolType]::Tls12, [Net.SecurityProtocolType]::Ssl3
-          [Net.ServicePointManager]::SecurityProtocol = "Tls, Tls11, Tls12, Ssl3"
-
-          $ProgressPreference = 'SilentlyContinue'
-          Invoke-WebRequest -Uri https://keybase.io/codecovsecurity/pgp_keys.asc -OutFile codecov.asc
-          gpg.exe --import codecov.asc
-
-          Invoke-WebRequest -Uri ${{ steps.codecov-info.outputs.uploader-url }} -Outfile ${{ steps.codecov-info.outputs.uploader-name }}
-          Invoke-WebRequest -Uri ${{ steps.codecov-info.outputs.uploader-url }}.SHA256SUM -Outfile ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM
-          Invoke-WebRequest -Uri ${{ steps.codecov-info.outputs.uploader-url }}.SHA256SUM.sig -Outfile ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM.sig
-
-          gpg.exe --verify ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM.sig ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM
-          If ($(Compare-Object -ReferenceObject  $(($(certUtil -hashfile ${{ steps.codecov-info.outputs.uploader-name }} SHA256)[1], "${{ steps.codecov-info.outputs.uploader-name }}") -join "  ") -DifferenceObject $(Get-Content ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM)).length -eq 0) {
-              echo "SHASUM verified"
-          } Else {
-              exit 0
-          }
-        }
-
-    - name: Upload Project Code Coverage
-      if: always()
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        REPORT_FLAGS: ${{ steps.codecov-flags.outputs.flags }},src
-        REPORT_NAME: ${{ runner.os }}-Py${{ matrix.python-version }}-src
-        REPORT_PATH: artifacts/coverage-project.xml
-      run: |
-        if [ -x ${{ steps.codecov-info.outputs.uploader-name }} ]; then
-          n=0
-          until [ "$n" -ge 5 ]
-          do
-            if ./${{ steps.codecov-info.outputs.uploader-name }} -R $(pwd) -n "${REPORT_NAME}" -f "${REPORT_PATH}" -F "${REPORT_FLAGS}"; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-          done
-        fi
-
-    - name: Upload Tests Code Coverage
-      if: always()
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        REPORT_FLAGS: ${{ steps.codecov-flags.outputs.flags }},tests
-        REPORT_NAME: ${{ runner.os }}-Py${{ matrix.python-version }}-tests
-        REPORT_PATH: artifacts/coverage-tests.xml
-      run: |
-        if [ -x ${{ steps.codecov-info.outputs.uploader-name }} ]; then
-          n=0
-          until [ "$n" -ge 5 ]
-          do
-            if ./${{ steps.codecov-info.outputs.uploader-name }} -R $(pwd) -n "${REPORT_NAME}" -f "${REPORT_PATH}" -F "${REPORT_FLAGS}"; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-          done
-        fi
+    - name: Upload Project coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: artifacts/
+        fail_ci_if_error: false
+        files: coverage-project.xml
+        flags: src,${{ runner.os }},Py${{ matrix.python-version}},PyTest${{ matrix.pytest-version }}
+        name: src-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}
+        verbose: true
 
     - name: Upload Logs
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: runtests-${{ steps.codecov.outputs.report-name }}.log
+        name: runtests-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}.log
         path: artifacts/runtests-*.log
 
   macOS:
@@ -437,10 +273,10 @@ jobs:
           - "3.10"
           - "3.11"
         pytest-version:
-          - "~=7.1.0"
-          - "~=7.2.0"
-          - "~=7.3.0"
-          - "~=7.4.0"
+          - "7.1.0"
+          - "7.2.0"
+          - "7.3.0"
+          - "7.4.0"
 
     steps:
     - uses: actions/checkout@v3
@@ -453,11 +289,11 @@ jobs:
     - name: Install Nox
       run: |
         python -m pip install --upgrade pip
-        pip install nox 'pytest${{ matrix.pytest-version }}'
+        pip install nox
 
     - name: Install Test Requirements
       env:
-        PYTEST_VERSION_REQUIREMENT: pytest${{ matrix.pytest-version }}
+        PYTEST_VERSION_REQUIREMENT: pytest~=${{ matrix.pytest-version }}
       run: |
         nox --force-color -e tests-3 --install-only
 
@@ -467,134 +303,33 @@ jobs:
       run: |
         nox --force-color -e tests-3 -- -vv tests/
 
-    - name: Gather CodeCov Info
-      if: always()
-      id: codecov-info
-      run: |
-        echo flag-python-version=$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
-        echo flag-pytest-version=$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
-        echo flag-runner-os=$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
-        echo uploader-url=$(python -c "print('https://uploader.codecov.io/latest/codecov-macos')") >> $GITHUB_OUTPUT
-        echo uploader-name=$(python -c "print('codecov-macos')") >> $GITHUB_OUTPUT
+    - name: Upload Tests coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: artifacts/
+        fail_ci_if_error: false
+        files: coverage-tests.xml
+        flags: tests,${{ runner.os }},Py${{ matrix.python-version}},PyTest${{ matrix.pytest-version }}
+        name: tests-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}
+        verbose: true
 
-    - name: Create CodeCov Flags
-      if: always()
-      id: codecov
-      run: |
-        echo flags=$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-        echo report-name=$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-
-    - name: Download Code Coverage Tool
-      if: always()
-      shell: bash
-      run: |
-        if [ "$(which curl)x" == "x" ]; then
-            echo "Failed to find the 'curl' binary"
-            exit 0
-        fi
-
-        if [ "$(which gpg)x" == "x" ]; then
-            echo "Failed to find the 'gpg' binary"
-            exit 0
-        fi
-
-        if [ "$(which shasum)x" == "x" ]; then
-            echo "Failed to find the 'shasum' binary"
-            exit 0
-        fi
-
-        echo "Uploader URL: ${{ steps.codecov-info.outputs.uploader-url }}"
-        echo "Uploader Name: ${{ steps.codecov-info.outputs.uploader-name }}"
-
-        if [ ! -x codecov-linux ]; then
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L ${{ steps.codecov-info.outputs.uploader-url }} --output ${{ steps.codecov-info.outputs.uploader-name }}; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L ${{ steps.codecov-info.outputs.uploader-url }}.SHA256SUM --output ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L ${{ steps.codecov-info.outputs.uploader-url }}.SHA256SUM.sig --output ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM.sig; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            n=0
-            until [ "$n" -ge 5 ]
-            do
-            if curl --max-time 30 -L https://keybase.io/codecovsecurity/pgp_keys.asc | gpg --import; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-            done
-            gpg --verify ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM.sig ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM && \
-                shasum -a 256 -c ${{ steps.codecov-info.outputs.uploader-name }}.SHA256SUM && \
-                chmod +x ${{ steps.codecov-info.outputs.uploader-name }} || exit 0
-        fi
-
-    - name: Upload Project Code Coverage
-      if: always()
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        REPORT_FLAGS: ${{ steps.codecov-flags.outputs.flags }},src
-        REPORT_NAME: ${{ runner.os }}-Py${{ matrix.python-version }}-src
-        REPORT_PATH: artifacts/coverage-project.xml
-      run: |
-        if [ -x ${{ steps.codecov-info.outputs.uploader-name }} ]; then
-          n=0
-          until [ "$n" -ge 5 ]
-          do
-            if ./${{ steps.codecov-info.outputs.uploader-name }} -R $(pwd) -n "${REPORT_NAME}" -f "${REPORT_PATH}" -F "${REPORT_FLAGS}"; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-          done
-        fi
-
-    - name: Upload Tests Code Coverage
-      if: always()
-      shell: bash
-      env:
-        CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
-        REPORT_FLAGS: ${{ steps.codecov-flags.outputs.flags }},tests
-        REPORT_NAME: ${{ runner.os }}-Py${{ matrix.python-version }}-tests
-        REPORT_PATH: artifacts/coverage-tests.xml
-      run: |
-        if [ -x ${{ steps.codecov-info.outputs.uploader-name }} ]; then
-          n=0
-          until [ "$n" -ge 5 ]
-          do
-            if ./${{ steps.codecov-info.outputs.uploader-name }} -R $(pwd) -n "${REPORT_NAME}" -f "${REPORT_PATH}" -F "${REPORT_FLAGS}"; then
-                break
-            fi
-            n=$((n+1))
-            sleep 15
-          done
-        fi
+    - name: Upload Project coverage to Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        directory: artifacts/
+        fail_ci_if_error: false
+        files: coverage-project.xml
+        flags: src,${{ runner.os }},Py${{ matrix.python-version}},PyTest${{ matrix.pytest-version }}
+        name: src-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}
+        verbose: true
 
     - name: Upload Logs
       if: always()
       uses: actions/upload-artifact@v3
       with:
-        name: runtests-${{ steps.codecov.outputs.report-name }}.log
+        name: runtests-${{ runner.os }}-Py${{ matrix.python-version}}-PyTest${{ matrix.pytest-version }}.log
         path: artifacts/runtests-*.log
 
 
