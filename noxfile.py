@@ -131,7 +131,13 @@ def tests(session):
         pytest_version_requirement = PYTEST_VERSION_REQUIREMENT
         if pytest_version_requirement:
             if not pytest_version_requirement.startswith("pytest"):
-                pytest_version_requirement = "pytest{}".format(pytest_version_requirement)
+                if (
+                    not pytest_version_requirement.startswith(("==", "~="))
+                    and pytest_version_requirement.endswith(".0")
+                    and not pytest_version_requirement.startswith("~=")
+                ):
+                    pytest_version_requirement = f"~={pytest_version_requirement}"
+                pytest_version_requirement = f"pytest{pytest_version_requirement}"
             session.install(pytest_version_requirement, silent=PIP_INSTALL_SILENT)
         session.install(*install_arguments, "-e", ".[tests]", silent=PIP_INSTALL_SILENT)
 
