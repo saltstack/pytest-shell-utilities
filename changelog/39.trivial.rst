@@ -1,3 +1,5 @@
-* Start running tests against Py3.11 and Pytest `7.3.x` and `7.4.x`
+Several project internal changes
 
+* Start running tests against Py3.11 and Pytest `7.3.x` and `7.4.x`
 * Update copyright headers
+* Upgrade to `coverage==7.2.7`

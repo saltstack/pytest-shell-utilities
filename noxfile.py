@@ -16,7 +16,7 @@ import nox
 from nox.command import CommandFailed
 
 
-COVERAGE_VERSION_REQUIREMENT = "coverage==6.2"
+COVERAGE_VERSION_REQUIREMENT = "coverage==7.2.7"
 PYTEST_VERSION_REQUIREMENT = os.environ.get("PYTEST_VERSION_REQUIREMENT") or None
 IS_WINDOWS = sys.platform.lower().startswith("win")
 IS_DARWIN = sys.platform.lower().startswith("darwin")
@@ -119,14 +119,8 @@ def tests(session):
     env = {}
     install_arguments = ["--progress-bar=off"]
     if SKIP_REQUIREMENTS_INSTALL is False:
-        # Always have the wheel package installed
-        if python_version(session) < (3, 6):
-            install_arguments.append("--no-python-version-warning")
-            session.install(*install_arguments, "-U", "pip<21.0", silent=PIP_INSTALL_SILENT)
-            coverage_requirements = ["coverage==5.2"]
-        else:
-            env["COVERAGE_PLUGINS_LIST"] = "coverage_conditional_plugin"
-            coverage_requirements = [COVERAGE_VERSION_REQUIREMENT, "coverage-conditional-plugin"]
+        env["COVERAGE_PLUGINS_LIST"] = "coverage_conditional_plugin"
+        coverage_requirements = [COVERAGE_VERSION_REQUIREMENT, "coverage-conditional-plugin"]
         session.install(*install_arguments, "wheel", silent=PIP_INSTALL_SILENT)
         session.install(
             *install_arguments,
@@ -199,7 +193,7 @@ def tests(session):
             args.append(arg)
 
     try:
-        session.run("coverage", "run", "-m", "pytest", *args, env=env)
+        session.run("python", "-bb", "-m", "coverage", "run", "-m", "pytest", *args, env=env)
     finally:
         # Always combine and generate the XML coverage report
         try:
