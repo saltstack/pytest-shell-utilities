@@ -1,1 +1,0 @@
-Update the GitHub actions versions and stop using `::set-output`

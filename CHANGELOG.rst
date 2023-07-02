@@ -13,6 +13,39 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.8.0 (2023-07-02)
+==================================
+
+Breaking Changes
+----------------
+
+- Drop support for python versions older than 3.7 (`#38 <https://github.com/saltstack/pytest-shell-utilities/issues/38>`_)
+
+
+Improvements
+------------
+
+- Support Python 3.11 (`#40 <https://github.com/saltstack/pytest-shell-utilities/issues/40>`_)
+
+
+Bug Fixes
+---------
+
+- Set minimal attrs version to 22.1.0 (`#28 <https://github.com/saltstack/pytest-shell-utilities/issues/28>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Update the GitHub actions versions and stop using `::set-output` (`#38 <https://github.com/saltstack/pytest-shell-utilities/issues/38>`_)
+- Several project internal changes
+
+  * Start running tests against Py3.11 and Pytest `7.3.x` and `7.4.x`
+  * Update copyright headers
+  * Upgrade to `coverage==7.2.7`
+  * Switch to `codecov/codecov-action` (`#39 <https://github.com/saltstack/pytest-shell-utilities/issues/39>`_)
+
+
 shell-utilities 1.7.0 (2022-09-23)
 ==================================
 
