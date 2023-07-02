@@ -272,7 +272,7 @@ jobs:
 
     - name: Upload Logs
       if: always()
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3
       with:
         name: runtests-${{ steps.codecov.outputs.report-name }}.log
         path: artifacts/runtests-*.log
@@ -415,7 +415,7 @@ jobs:
 
     - name: Upload Logs
       if: always()
-      uses: actions/upload-artifact@main
+      uses: actions/upload-artifact@v3
       with:
         name: runtests-${{ steps.codecov.outputs.report-name }}.log
         path: artifacts/runtests-*.log
