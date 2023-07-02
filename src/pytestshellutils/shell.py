@@ -263,18 +263,11 @@ class SubprocessImpl:
             self._terminal_stdout.flush()
             self._terminal_stdout.seek(0)
             _read_stdout = self._terminal_stdout.read()
-            try:
-                stdout = self._terminal._translate_newlines(  # type: ignore[attr-defined]
-                    _read_stdout,
-                    self.factory.system_encoding,
-                    sys.stdout.errors,
-                )
-            except TypeError:
-                # Python < 3.6
-                stdout = self._terminal._translate_newlines(  # type: ignore[attr-defined]
-                    _read_stdout,
-                    self.factory.system_encoding,
-                )
+            stdout = self._terminal._translate_newlines(  # type: ignore[attr-defined]
+                _read_stdout,
+                self.factory.system_encoding,
+                sys.stdout.errors,
+            )
             self._terminal_stdout.close()
 
             if TYPE_CHECKING:
@@ -283,18 +276,11 @@ class SubprocessImpl:
             self._terminal_stderr.flush()
             self._terminal_stderr.seek(0)
             _read_stderr = self._terminal_stderr.read()
-            try:
-                stderr = self._terminal._translate_newlines(  # type: ignore[attr-defined]
-                    _read_stderr,
-                    self.factory.system_encoding,
-                    sys.stderr.errors,
-                )
-            except TypeError:
-                # Python < 3.6
-                stderr = self._terminal._translate_newlines(  # type: ignore[attr-defined]
-                    _read_stderr,
-                    self.factory.system_encoding,
-                )
+            stderr = self._terminal._translate_newlines(  # type: ignore[attr-defined]
+                _read_stderr,
+                self.factory.system_encoding,
+                sys.stderr.errors,
+            )
             self._terminal_stderr.close()
         try:
             self._terminal_result = ProcessResult(
