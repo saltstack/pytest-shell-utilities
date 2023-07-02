@@ -405,11 +405,10 @@ class Factory(BaseFactory):
             # encoding
 
             try:
-                encoding = locale.getdefaultlocale()[-1]
-            except ValueError:
-                # A bad locale setting was most likely found:
-                #   https://github.com/saltstack/salt/issues/26063
-                pass
+                encoding = locale.getencoding()  # type: ignore[attr-defined]
+            except AttributeError:
+                # Python < 3.11
+                encoding = locale.getpreferredencoding(do_setlocale=True)
 
             if not encoding:
                 # This is most likely ascii which is not the best but we were
