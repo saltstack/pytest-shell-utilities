@@ -70,7 +70,7 @@ def format_callback_to_string(
     return callback_str
 
 
-def warn_until(
+def warn_until(  # pragma: no cover
     version: str,
     message: str,
     category: Type[Warning] = DeprecationWarning,
