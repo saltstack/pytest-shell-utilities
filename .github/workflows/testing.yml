@@ -151,18 +151,18 @@ jobs:
       if: always()
       id: codecov-info
       run: |
-        echo name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
-        echo name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
-        echo name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
-        echo name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/codecov-linux')") >> $GITHUB_OUTPUT
-        echo name=uploader-name::$(python -c "print('codecov-linux')") >> $GITHUB_OUTPUT
+        echo flag-python-version=$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
+        echo flag-pytest-version=$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
+        echo flag-runner-os=$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
+        echo uploader-url=$(python -c "print('https://uploader.codecov.io/latest/codecov-linux')") >> $GITHUB_OUTPUT
+        echo uploader-name=$(python -c "print('codecov-linux')") >> $GITHUB_OUTPUT
 
     - name: Create CodeCov Flags
       if: always()
       id: codecov
       run: |
-        echo name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-        echo name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo flags=$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo report-name=$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
 
     - name: Download Code Coverage Tool
       if: always()
@@ -182,6 +182,9 @@ jobs:
             echo "Failed to find the 'shasum' binary"
             exit 0
         fi
+
+        echo "Uploader URL: ${{ steps.codecov-info.outputs.uploader-url }}"
+        echo "Uploader Name: ${{ steps.codecov-info.outputs.uploader-name }}"
 
         if [ ! -x codecov-linux ]; then
             n=0
@@ -330,18 +333,18 @@ jobs:
       id: codecov-info
       shell: bash
       run: |
-        echo name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
-        echo name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
-        echo name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
-        echo name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/windows/codecov.exe')") >> $GITHUB_OUTPUT
-        echo name=uploader-name::$(python -c "print('codecov.exe')") >> $GITHUB_OUTPUT
+        echo flag-python-version=$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
+        echo flag-pytest-version=$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
+        echo flag-runner-os=$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
+        echo uploader-url=$(python -c "print('https://uploader.codecov.io/latest/windows/codecov.exe')") >> $GITHUB_OUTPUT
+        echo uploader-name=$(python -c "print('codecov.exe')") >> $GITHUB_OUTPUT
 
     - name: Create CodeCov Flags
       if: always()
       id: codecov
       run: |
-        echo name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-        echo name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo flags=$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo report-name=$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
 
 
     - name: Download Code Coverage Tool
@@ -468,18 +471,18 @@ jobs:
       if: always()
       id: codecov-info
       run: |
-        echo name=flag-python-version::$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
-        echo name=flag-pytest-version::$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
-        echo name=flag-runner-os::$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
-        echo name=uploader-url::$(python -c "print('https://uploader.codecov.io/latest/codecov-macos')") >> $GITHUB_OUTPUT
-        echo name=uploader-name::$(python -c "print('codecov-macos')") >> $GITHUB_OUTPUT
+        echo flag-python-version=$(python -c "import sys; print('Py{}{}'.format(*sys.version_info))") >> $GITHUB_OUTPUT
+        echo flag-pytest-version=$(python -c "import pytest; print('PyTest{}{}'.format(*pytest.__version__.split('.')))") >> $GITHUB_OUTPUT
+        echo flag-runner-os=$(python -c "print('${{ runner.os }}'.replace('-latest', ''))") >> $GITHUB_OUTPUT
+        echo uploader-url=$(python -c "print('https://uploader.codecov.io/latest/codecov-macos')") >> $GITHUB_OUTPUT
+        echo uploader-name=$(python -c "print('codecov-macos')") >> $GITHUB_OUTPUT
 
     - name: Create CodeCov Flags
       if: always()
       id: codecov
       run: |
-        echo name=flags::$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
-        echo name=report-name::$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo flags=$(python -c "print(','.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
+        echo report-name=$(python -c "print('-'.join(['${{ steps.codecov-info.outputs.flag-runner-os }}', '${{ steps.codecov-info.outputs.flag-python-version }}', '${{ steps.codecov-info.outputs.flag-pytest-version }}']))") >> $GITHUB_OUTPUT
 
     - name: Download Code Coverage Tool
       if: always()
@@ -499,6 +502,9 @@ jobs:
             echo "Failed to find the 'shasum' binary"
             exit 0
         fi
+
+        echo "Uploader URL: ${{ steps.codecov-info.outputs.uploader-url }}"
+        echo "Uploader Name: ${{ steps.codecov-info.outputs.uploader-name }}"
 
         if [ ! -x codecov-linux ]; then
             n=0
