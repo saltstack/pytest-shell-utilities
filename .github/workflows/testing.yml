@@ -108,7 +108,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: 15
       matrix:
         python-version:
           - "3.7"
@@ -282,7 +282,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 15
       matrix:
         python-version:
           - "3.7"
@@ -425,7 +425,7 @@ jobs:
 
     strategy:
       fail-fast: false
-      max-parallel: 5
+      max-parallel: 15
       matrix:
         python-version:
           - "3.7"
