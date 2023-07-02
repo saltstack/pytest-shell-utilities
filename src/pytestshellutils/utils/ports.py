@@ -23,7 +23,7 @@ def get_unused_localhost_port(use_cache: bool = False) -> int:
         use_cache:
             If ``use_cache`` is ``True``, consecutive calls to this function will never return the cached port.
     """
-    if not isinstance(use_cache, bool):
+    if not isinstance(use_cache, bool):  # pragma: no cover
         raise pytest.UsageError(
             f"The value of 'use_cache' needs to be an boolean, not {type(use_cache)}"
         )
@@ -65,6 +65,6 @@ def get_connectable_ports(ports: Iterable[int]) -> Set[int]:
                     log.debug("Port %s is connectable!", port)
                     connectable_ports.add(port)
                     sock.shutdown(socket.SHUT_RDWR)
-            except OSError:
+            except OSError:  # pragma: no cover
                 continue
     return connectable_ports

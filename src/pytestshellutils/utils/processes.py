@@ -19,7 +19,7 @@ import psutil
 
 try:
     from pytest import LineMatcher
-except ImportError:
+except ImportError:  # pragma: no cover
     # Older pytest
     from _pytest.pytester import LineMatcher
 
@@ -113,7 +113,7 @@ class ProcessResult:
         return None
 
     @property
-    def exitcode(self) -> int:
+    def exitcode(self) -> int:  # pragma: no cover
         """
         Return the process returncode.
 
@@ -129,7 +129,7 @@ class ProcessResult:
         return self.returncode
 
     @property
-    def json(self) -> Optional[Dict[Any, Any]]:
+    def json(self) -> Optional[Dict[Any, Any]]:  # pragma: no cover
         """
         Return the process output parsed as JSON, if possible.
 
@@ -195,7 +195,7 @@ def _get_cmdline(proc: psutil.Process) -> Optional[Any]:
         # and we use it in log calls
         try:
             cmdline = proc.cmdline()
-        except (psutil.NoSuchProcess, psutil.AccessDenied):
+        except (psutil.NoSuchProcess, psutil.AccessDenied):  # pragma: no cover
             # OSX is more restrictive about the above information
             cmdline = None
         except OSError:  # pragma: no cover
@@ -237,7 +237,7 @@ def _get_cmdline(proc: psutil.Process) -> Optional[Any]:
             # c: ... \lib\site-packages\psutil\_pswindows.py:806: RuntimeError
             cmdline = None
 
-        if not cmdline:
+        if not cmdline:  # pragma: no cover
             try:
                 cmdline = proc.as_dict()
             except psutil.NoSuchProcess:

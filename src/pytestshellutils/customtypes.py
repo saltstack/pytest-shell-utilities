@@ -28,7 +28,7 @@ class EnvironDict(Dict[str, str]):
     Environ dictionary type.
     """
 
-    def __str__(self) -> str:
+    def __str__(self) -> str:  # pragma: no cover
         """
         String representation of the class.
         """
