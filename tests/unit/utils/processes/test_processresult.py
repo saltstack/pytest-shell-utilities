@@ -4,12 +4,15 @@
 Test ``pytestshellutils.utils.processes.ProcessResult``.
 """
 import json as jsonlib
+import logging
 import textwrap
 
 import pytest
 from pytest_subtests import SubTests
 
 from pytestshellutils.utils.processes import ProcessResult
+
+log = logging.getLogger(__name__)
 
 
 @pytest.mark.parametrize("returncode", [None, 1.0, -1.0, "0"])
@@ -127,23 +130,24 @@ def test_str_formatting(subtests: SubTests) -> None:
     stdout = jsonlib.dumps(data)
     with subtests.test(returncode=returncode, stdout=stdout, stderr=stderr, cmdline=cmdline):
         ret = ProcessResult(returncode=returncode, stdout=stdout, stderr=stderr, cmdline=cmdline)
-        expected = textwrap.dedent(
-            """\
+        expected = (
+            textwrap.dedent(
+                f"""\
             ProcessResult
-             Command Line: {!r}
-             Returncode: {}
+             Command Line: {cmdline!r}
+             Returncode: {returncode}
              Process Output:
                >>>>> STDOUT >>>>>
-            {}
+            {stdout}
                <<<<< STDOUT <<<<<
                >>>>> STDERR >>>>>
-            {}
+            {stderr}
                <<<<< STDERR <<<<<
              Parsed JSON Data:
-               {!r}
-        """.format(
-                cmdline, returncode, stdout, stderr, data
+        """
             )
+            + ProcessResult._to_printable_data(data)
+            + "\n"
         )
         assert str(ret) == expected
 
@@ -154,22 +158,23 @@ def test_str_formatting(subtests: SubTests) -> None:
         ret = ProcessResult(
             returncode=returncode, stdout=stdout, stderr=stderr, cmdline=cmdline, data_key=data_key
         )
-        expected = textwrap.dedent(
-            """\
+        expected = (
+            textwrap.dedent(
+                f"""\
             ProcessResult
-             Command Line: {!r}
-             Returncode: {}
+             Command Line: {cmdline!r}
+             Returncode: {returncode}
              Process Output:
                >>>>> STDOUT >>>>>
-            {}
+            {stdout}
                <<<<< STDOUT <<<<<
                >>>>> STDERR >>>>>
-            {}
+            {stderr}
                <<<<< STDERR <<<<<
              Parsed JSON Data:
-               {!r}
-        """.format(
-                cmdline, returncode, stdout, stderr, data[data_key]
+        """
             )
+            + ProcessResult._to_printable_data(data[data_key])
+            + "\n"
         )
         assert str(ret) == expected
