@@ -1,1 +1,0 @@
-The printed output is now the result of `json.dumps` instead of `pprint.pformat`

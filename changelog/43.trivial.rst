@@ -1,4 +1,0 @@
-Several minor changes to the code base:
-
-* Update copyright headers
-* Update pre-commit hook versions

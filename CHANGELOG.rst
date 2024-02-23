@@ -13,6 +13,30 @@ Backward incompatible (breaking) changes will only be introduced in major versio
 
 .. towncrier release notes start
 
+shell-utilities 1.9.0 (2024-02-23)
+==================================
+
+Breaking Changes
+----------------
+
+- Drop support for Python older than 3.8 and Pytest older than 7.4.x (`#43 <https://github.com/saltstack/pytest-shell-utilities/issues/43>`_)
+
+
+Bug Fixes
+---------
+
+- The printed output is now the result of `json.dumps` instead of `pprint.pformat` (`#42 <https://github.com/saltstack/pytest-shell-utilities/issues/42>`_)
+
+
+Trivial/Internal Changes
+------------------------
+
+- Several minor changes to the code base:
+
+  * Update copyright headers
+  * Update pre-commit hook versions (`#43 <https://github.com/saltstack/pytest-shell-utilities/issues/43>`_)
+
+
 shell-utilities 1.8.0 (2023-07-02)
 ==================================
 
