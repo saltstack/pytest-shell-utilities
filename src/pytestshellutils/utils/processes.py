@@ -160,9 +160,17 @@ class ProcessResult:
         if self.stderr and self.stderr.strip():
             message += f"\n   >>>>> STDERR >>>>>\n{self.stderr}\n   <<<<< STDERR <<<<<"
         if self.data:
-            message += "\n Parsed JSON Data:\n"
-            message += "\n".join(f"   {line}" for line in pprint.pformat(self.data).splitlines())
+            message += f"\n Parsed JSON Data:\n{self._to_printable_data(self.data)}"
         return message + "\n"
+
+    @staticmethod
+    def _to_printable_data(data: Dict[str, Any]) -> str:
+        """
+        Convert a data dictionary into a JSON string.
+        """
+        return "\n".join(
+            f"   {line}" for line in json.dumps(data, indent=2, sort_keys=False).splitlines()
+        ).rstrip()
 
 
 def collect_child_processes(pid: int) -> List[psutil.Process]:
