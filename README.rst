@@ -1,7 +1,6 @@
-.. image:: https://img.shields.io/github/workflow/status/saltstack/pytest-shell-utilities/CI/main?style=plastic
+.. image:: https://img.shields.io/github/actions/workflow/status/saltstack/pytest-shell-utilities/testing.yml?style=plastic&branch=main
    :target: https://github.com/saltstack/pytest-shell-utilities/actions/workflows/testing.yml
    :alt: CI
-
 
 .. image:: https://readthedocs.org/projects/pytest-shell-utilities/badge/?style=plastic
    :target: https://pytest-shell-utilities.readthedocs.io
