@@ -280,7 +280,7 @@ def lint_code(session):
     """
     Run PyLint against the code. Set PYLINT_REPORT to a path to capture output.
     """
-    flags = ["--disable=I", "--ignore-paths=src/pytestshellutils/downgraded/.*"]
+    flags = ["--disable=I"]
     if session.posargs:
         paths = session.posargs
     else:
