@@ -8,11 +8,11 @@ import logging
 from typing import Any
 from typing import Callable
 from typing import Dict
+from typing import Protocol
 from typing import Tuple
 from typing import TYPE_CHECKING
 
 import attr
-from typing_extensions import Protocol
 
 from pytestshellutils.utils import format_callback_to_string
 
