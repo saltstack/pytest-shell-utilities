@@ -2,7 +2,7 @@
 -r tests.txt
 -r changelog.txt
 furo
-sphinx
+sphinx >= 8.0.2
 sphinx-copybutton
 sphinx-prompt
 sphinxcontrib-spelling
