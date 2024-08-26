@@ -326,6 +326,9 @@ jobs:
 
   Build:
     runs-on: ubuntu-latest
+    environment: testing
+    permissions:
+      id-token: write
     needs:
       - Docs
       - PyLint
@@ -352,7 +355,8 @@ jobs:
       if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
-        user: __token__
-        password: ${{ secrets.TEST_PYPI_TOKEN }}
         repository_url: https://test.pypi.org/legacy/
         print-hash: true
+        skip-existing: true
+        verbose: true
+        verify-metadata: true
