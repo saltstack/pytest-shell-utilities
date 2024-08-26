@@ -1278,9 +1278,9 @@ class Daemon(ScriptSubprocess):
         # If any processes were not terminated and are listening on the ports
         # we have set on listen_ports, terminate those processes.
         found_processes = []
-        for process in psutil.process_iter(["connections"]):
+        for process in psutil.process_iter(["net_connections"]):
             try:
-                for connection in process.connections():
+                for connection in process.net_connections():
                     if connection.status != psutil.CONN_LISTEN:
                         # We only care about listening services
                         continue
@@ -1289,7 +1289,7 @@ class Daemon(ScriptSubprocess):
                         # We already found one connection, no need to check the others
                         break
             except psutil.AccessDenied:  # pragma: no cover
-                # We've been denied access to this process connections. Carry on.
+                # We've been denied access to this process net_connections. Carry on.
                 continue
             except psutil.ZombieProcess:
                 continue

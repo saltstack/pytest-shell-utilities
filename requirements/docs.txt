@@ -1,6 +1,7 @@
 -r base.txt
 -r tests.txt
 -r changelog.txt
+towncrier <= 23.11.0
 furo
 sphinx
 sphinx-copybutton

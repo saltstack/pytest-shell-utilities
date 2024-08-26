@@ -1,0 +1,1 @@
+Added support for psutil 6.0.0, connections becomes net_connections
