@@ -7,6 +7,9 @@ on:
 jobs:
   Publish:
     runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
     steps:
     - uses: actions/checkout@v4
       with:
@@ -21,10 +24,9 @@ jobs:
     - name: Build a binary wheel and a source tarball
       run: |
         nox -e build
-
-    - name: Publish distribution 📦 to PyPI
+    - name: Publish package distributions to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
       with:
         print-hash: true
-        skip-existing: true
+        verbose: true
         verify-metadata: true
