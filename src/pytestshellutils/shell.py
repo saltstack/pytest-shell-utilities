@@ -183,7 +183,7 @@ class SubprocessImpl:
         except subprocess.TimeoutExpired:
             # We're good
             # Collect any child processes, though, this early there likely is none
-            with contextlib.suppress(psutil.NoSuchProcess):
+            with contextlib.suppress(psutil.NoSuchProcess, psutil.AccessDenied):
                 for child in psutil.Process(self._terminal.pid).children(
                     recursive=True
                 ):  # pragma: no cover
@@ -221,7 +221,7 @@ class SubprocessImpl:
         atexit.unregister(self.terminate)
         log.info("Stopping %s", self.factory)
         # Collect any child processes information before terminating the process
-        with contextlib.suppress(psutil.NoSuchProcess):
+        with contextlib.suppress(psutil.NoSuchProcess, psutil.AccessDenied):
             for child in psutil.Process(self._terminal.pid).children(recursive=True):
                 if child not in self._children:
                     self._children.append(child)
