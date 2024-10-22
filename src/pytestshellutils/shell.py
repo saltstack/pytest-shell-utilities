@@ -1278,21 +1278,39 @@ class Daemon(ScriptSubprocess):
         # If any processes were not terminated and are listening on the ports
         # we have set on listen_ports, terminate those processes.
         found_processes = []
-        for process in psutil.process_iter(["net_connections"]):
-            try:
-                for connection in process.net_connections():
-                    if connection.status != psutil.CONN_LISTEN:
-                        # We only care about listening services
-                        continue
-                    if connection.laddr.port in self.check_ports:
-                        found_processes.append(process)
-                        # We already found one connection, no need to check the others
-                        break
-            except psutil.AccessDenied:  # pragma: no cover
-                # We've been denied access to this process net_connections. Carry on.
-                continue
-            except psutil.ZombieProcess:
-                continue
+        psutil_majorver, _, _ = psutil.version_info
+        if psutil_majorver < 6:
+            for process in psutil.process_iter(["connections"]):
+                try:
+                    for connection in process.connections():
+                        if connection.status != psutil.CONN_LISTEN:
+                            # We only care about listening services
+                            continue
+                        if connection.laddr.port in self.check_ports:
+                            found_processes.append(process)
+                            # We already found one connection, no need to check the others
+                            break
+                except psutil.AccessDenied:  # pragma: no cover
+                    # We've been denied access to this process connections. Carry on.
+                    continue
+                except psutil.ZombieProcess:
+                    continue
+        else:
+            for process in psutil.process_iter(["net_connections"]):
+                try:
+                    for connection in process.net_connections():
+                        if connection.status != psutil.CONN_LISTEN:
+                            # We only care about listening services
+                            continue
+                        if connection.laddr.port in self.check_ports:
+                            found_processes.append(process)
+                            # We already found one connection, no need to check the others
+                            break
+                except psutil.AccessDenied:  # pragma: no cover
+                    # We've been denied access to this process net_connections. Carry on.
+                    continue
+                except psutil.ZombieProcess:
+                    continue
         if found_processes:
             log.debug(
                 "The following processes were found listening on ports %s: %s",
